@@ -806,3 +806,18 @@ analyze:
 - **기한 계산은 12월 결산 법인 기준**입니다. 결산월이 다르면 그대로 적용되지 않습니다.
 - LLM 판단에는 오차가 있습니다. `min_confidence`를 낮추면 후보가 늘지만 오탐도 늘어납니다.
   처음에는 `--dry-run`으로 며칠 돌려 보며 문턱값을 조정하는 것을 권합니다.
+
+---
+
+## 웹에 공개된 스냅샷 (GitHub Pages)
+
+<https://2gilhan.github.io/taxrefund/>
+
+대시보드를 정적 HTML로 내보내 `docs/`에 넣고 GitHub Pages로 게시합니다.
+공인 IP·Tailscale 주소·접근 토큰·국가법령 OC 값은 넣지 않고, 판례 원문 링크는
+국가법령정보센터 열람 주소로 바꿉니다. 갱신하려면:
+
+```powershell
+python tools/export_static.py
+git add docs && git commit -m "스냅샷 갱신" && git push
+```

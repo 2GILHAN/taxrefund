@@ -1,0 +1,269 @@
+<!doctype html><html lang="ko"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1e2126">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>암호화자산 거래차익은 구 소득세법 제119조 제12호 마목 또는 타목, 구 법인세법 제93조 제10호 바목 또는 카목에서 정한 국내원천소득에 해당하지 아니함</title><style>
+:root{--bg:#f6f7f9;--card:#fff;--txt:#1c1e21;--sub:#6b7280;--line:#e5e7eb;
+      --hi:#e74c3c;--mid:#e67e22;--lo:#3498db;--ok:#16a34a;--warn:#f59e0b}
+@media(prefers-color-scheme:dark){:root{--bg:#15171a;--card:#1e2126;--txt:#e8eaed;
+      --sub:#9aa0a6;--line:#2c3036}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--txt);
+     font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",
+     "Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.6;
+     padding-bottom:env(safe-area-inset-bottom)}
+a{color:inherit;text-decoration:none}
+header{position:sticky;top:0;z-index:10;background:var(--card);border-bottom:1px solid var(--line);
+       padding:12px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header h1{font-size:17px;margin:0;font-weight:650}
+nav{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+nav a{font-size:13px;padding:6px 12px;border-radius:999px;background:var(--bg);
+      border:1px solid var(--line);white-space:nowrap}
+nav a.on{background:var(--txt);color:var(--card);border-color:var(--txt)}
+main{padding:16px;max-width:820px;margin:0 auto}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;
+      text-align:center;display:block;transition:transform .06s,border-color .12s}
+.stat:active{transform:scale(.96);border-color:var(--txt)}
+@media(hover:hover){.stat:hover{border-color:var(--txt)}}
+.stat b{display:block;font-size:22px;line-height:1.2}
+.stat span{font-size:11px;color:var(--sub)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.chip{font-size:13px;padding:7px 14px;border-radius:999px;background:var(--card);
+      border:1px solid var(--line);color:var(--sub);white-space:nowrap}
+.chip.on{background:var(--txt);color:var(--card);border-color:var(--txt);font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+      padding:14px;margin-bottom:12px;display:block}
+.card h2{font-size:16px;margin:0 0 8px;line-height:1.45;font-weight:640}
+.meta{font-size:12px;color:var(--sub);margin-bottom:8px}
+.sum{font-size:14px;color:var(--txt);opacity:.9}
+.score{display:inline-block;min-width:44px;text-align:center;color:#fff;font-weight:700;
+       font-size:13px;padding:3px 8px;border-radius:8px;margin-right:8px}
+.s-hi{background:var(--hi)}.s-mid{background:var(--mid)}.s-lo{background:var(--lo)}
+.s-no{background:var(--sub)}
+.tags{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:11px;padding:3px 9px;border-radius:999px;background:var(--bg);
+     border:1px solid var(--line);color:var(--sub)}
+.tag.co{border-color:var(--ok);color:var(--ok)}
+.tag.no{border-color:var(--sub)}
+.tag.smp{border-color:var(--warn);color:var(--warn);font-weight:600}
+.tag.tx{border-color:var(--lo);color:var(--lo)}
+.tag.ind{border-color:var(--line);color:var(--txt);opacity:.75}
+.tag.src{border-color:var(--line);color:var(--sub);opacity:.7}
+.search{display:flex;gap:6px;margin-bottom:12px}
+.search input[type=search]{flex:1;min-width:0;font-size:15px;padding:9px 13px;
+     border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--txt);
+     -webkit-appearance:none}
+.search button{font-size:14px;padding:9px 16px;border-radius:10px;border:1px solid var(--txt);
+     background:var(--txt);color:var(--card);font-weight:600;white-space:nowrap}
+.facet{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px}
+.fname{font-size:11px;color:var(--sub);flex:0 0 34px;padding-top:6px;font-weight:600}
+/* 태그가 많아 줄바꿈으로 쌓이면 카드가 화면 밖으로 밀립니다.
+   가로 스크롤로 두어 목록이 늘 보이게 합니다. */
+.tchips{display:flex;gap:5px;overflow-x:auto;padding-bottom:3px;
+     scrollbar-width:none;-ms-overflow-style:none}
+.tchips::-webkit-scrollbar{display:none}
+.tchip{font-size:12px;padding:5px 11px;border-radius:999px;background:var(--card);
+     border:1px solid var(--line);color:var(--sub);white-space:nowrap;flex:0 0 auto}
+.tchip.on{background:var(--lo);color:#fff;border-color:var(--lo);font-weight:600}
+.tchip i{font-style:normal;opacity:.55;margin-left:5px;font-size:11px}
+.fsum{font-size:12px;color:var(--sub);margin:10px 0 12px}
+.clear{margin-left:10px;color:var(--hi);border-bottom:1px solid currentColor}
+/* 카드는 더 이상 통째로 링크가 아닙니다. 안에 태그 링크가 들어가는데
+   링크 안의 링크는 브라우저가 끊어 버리기 때문입니다. 제목만 링크입니다. */
+.card .ttl{display:block}
+.card .tags:empty{display:none}
+.card .tags{margin-top:8px}
+.tag.iss{border-color:var(--line);color:var(--sub)}
+.who{margin-top:8px;font-size:11px;color:var(--sub);opacity:.85}
+.quick{background:var(--card);border:1px solid var(--line);border-radius:14px;
+     padding:12px 14px;margin-bottom:14px}
+.quick .facet:last-child{margin-bottom:0}
+.lead{font-size:14px;color:var(--sub);margin-bottom:14px;line-height:1.65}
+.blist{display:flex;flex-direction:column;gap:1px;background:var(--line);
+     border-radius:10px;overflow:hidden}
+.brow{display:flex;align-items:center;gap:10px;background:var(--card);
+     padding:11px 13px}
+.brow:active{background:var(--bg)}
+@media(hover:hover){.brow:hover{background:var(--bg)}}
+.bname{flex:1;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;
+     white-space:nowrap}
+.bnum{font-size:12px;color:var(--sub);white-space:nowrap}
+.bmore{font-size:12px;color:var(--sub);margin-top:8px}
+.banner{border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:14px;
+        border:1px solid var(--warn);background:color-mix(in srgb,var(--warn) 12%,transparent)}
+.banner b{color:var(--warn)}
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;
+        padding:14px;margin-bottom:12px}
+section h3{font-size:13px;margin:0 0 10px;color:var(--sub);font-weight:600;
+           letter-spacing:.04em;text-transform:uppercase}
+ul{margin:0;padding-left:20px}li{margin-bottom:6px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px}
+.kv dt{color:var(--sub)}.kv dd{margin:0}
+.empty{text-align:center;color:var(--sub);padding:48px 16px;font-size:14px}
+footer{text-align:center;color:var(--sub);font-size:11px;padding:24px 16px}
+.back{font-size:13px;color:var(--sub);margin-bottom:12px;display:inline-block}
+code{background:var(--bg);padding:2px 6px;border-radius:6px;font-size:13px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;
+     margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+button.copy{font:inherit;font-size:14px;padding:9px 14px;border-radius:10px;cursor:pointer;
+     background:var(--txt);color:var(--card);border:1px solid var(--txt);
+     transition:transform .06s,background .12s,color .12s,border-color .12s}
+button.copy:active{transform:scale(.96)}
+button.copy.ghost{background:var(--card);color:var(--txt)}
+button.copy.mini{font-size:11px;padding:3px 9px;border-radius:999px;margin-left:8px;
+     background:var(--bg);color:var(--sub);border-color:var(--line);
+     font-weight:500;letter-spacing:0;text-transform:none;vertical-align:middle}
+button.copy.done{background:var(--ok);color:#fff;border-color:var(--ok)}
+button.copy.fail{background:var(--warn);color:#fff;border-color:var(--warn)}
+.urltext{word-break:break-all;font-size:13px;color:var(--lo)}
+#tr-manual{position:sticky;bottom:0;margin-top:14px;background:var(--card);
+     border:2px solid var(--warn);border-radius:12px;padding:12px;
+     box-shadow:0 -4px 20px rgba(0,0,0,.18)}
+.manual-head{font-size:14px;color:var(--txt);margin-bottom:8px;display:flex;
+     align-items:center;gap:8px;flex-wrap:wrap}
+.manual-head b{color:var(--warn)}
+#tr-manual-all,#tr-manual-close{font:inherit;font-size:12px;padding:5px 11px;
+     border-radius:8px;background:var(--bg);color:var(--txt);
+     border:1px solid var(--line);cursor:pointer}
+#tr-manual-all{margin-left:auto}
+#tr-manual textarea{width:100%;font-size:16px;line-height:1.5;padding:10px;
+     border-radius:8px;border:1px solid var(--line);background:var(--bg);
+     color:var(--txt);resize:vertical;font-family:inherit;-webkit-user-select:text}
+.manual-tip{font-size:11px;color:var(--sub);margin-top:8px;line-height:1.5}
+</style></head><body>
+<header><h1>📑 법인세 경정청구</h1><nav><a href="index.html" class="on">알림</a><a href="all.html" class="">전체</a><a href="browse.html" class="">분류</a><a href="status.html" class="">상태</a></nav></header>
+<main><div style="font-size:12px;color:var(--sub);margin:0 0 12px">정적 스냅샷 · 2026-11-06 18:06 KST 기준</div><a class="back" href="index.html">← 목록</a>
+
+<script type="application/json" id="cp-full">"[85점] 외국법인 등의 암호화자산 거래차익은 국내원천소득 제외\n\n사건명: 암호화자산 거래차익은 구 소득세법 제119조 제12호 마목 또는 타목, 구 법인세법 제93조 제10호 바목 또는 카목에서 정한 국내원천소득에 해당하지 아니함\n구분: 판례 · -\n사건번호: 서울행정법원-2023-구합-72387\n선고일: 2024-06-13\n결론: 납세자승\n청구 근거: 통상적 경정청구\n영향도: 중\n적용 업종: 가상자산 매매 및 중개업, 기타 금융 투자업\n\n■ 쟁점 요약\n가상자산 거래소를 운영하는 내국법인이 비거주자 및 외국법인의 가상자산 거래차익에 대해 원천징수를 하지 않았다는 이유로 법인세(원천징수분) 등을 부과받은 사건입니다. 법원은 분산원장 기반의 가상자산은 물리적·장소적으로 국내에 소재하는 자산으로 볼 수 없으며, 열거주의를 취하는 구 법인세법 및 구 소득세법상 과세대상으로 명시되지 않은 이상 국내원천소득으로 확장해석할 수 없다고 판단하였습니다. 따라서 해당 거래차익이 국내원천소득에 해당함을 전제로 거래소에 원천징수의무 불이행에 따른 법인세 등을 부과한 처분은 위법하여 전부 취소되었습니다.\n\n■ 경정청구 실익\n가상자산 과세 시행 유예기간(개정 세법 시행 전) 중 외국법인 또는 비거주자의 가상자산 거래차익에 대해 과세관청의 부과처분을 받아 세액을 납부했거나 자진 원천징수하여 납부한 가상자산 사업자는 국내원천소득 부존재 법리를 근거로 세액 환급을 위한 경정청구를 검토할 실익이 있습니다.\n\n원문: https://www.law.go.kr/LSW/precInfoP.do?precSeq=624769"</script>
+<section>
+<h2 style="margin:0 0 10px;font-size:18px">
+<span class="score s-hi">85</span>외국법인 등의 암호화자산 거래차익은 국내원천소득 제외</h2>
+<dl class="kv">
+<dt>사건명</dt><dd>암호화자산 거래차익은 구 소득세법 제119조 제12호 마목 또는 타목, 구 법인세법 제93조 제10호 바목 또는 카목에서 정한 국내원천소득에 해당하지 아니함</dd>
+<dt>구분</dt><dd>판례 · -</dd>
+<dt>사건번호</dt><dd>서울행정법원-2023-구합-72387</dd>
+<dt>선고일</dt><dd>2024-06-13</dd>
+<dt>세목</dt><dd>법인세</dd>
+<dt>결론</dt><dd>납세자승</dd>
+<dt>청구 근거</dt><dd>통상적 경정청구</dd>
+<dt>영향도</dt><dd>중</dd>
+<dt>본문 출처</dt><dd>국세법령정보시스템 (국세청)</dd>
+</dl>
+<div class="actions"><button type="button" class="copy " data-target="cp-full" data-label="복사">복사</button></div>
+</section>
+<section><h3>태그</h3><div class="tchips" style="flex-wrap:wrap;overflow:visible">
+<a class="tchip" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tchip" href="all.html?industry=%EA%B0%80%EC%83%81%EC%9E%90%EC%82%B0+%EB%A7%A4%EB%A7%A4+%EB%B0%8F+%EC%A4%91%EA%B0%9C%EC%97%85">가상자산 매매 및 중개업</a><a class="tchip" href="all.html?industry=%EA%B8%B0%ED%83%80+%EA%B8%88%EC%9C%B5+%ED%88%AC%EC%9E%90%EC%97%85">기타 금융 투자업</a><a class="tchip" href="all.html?issue=%EC%99%B8%EA%B5%AD%EB%B2%95%EC%9D%B8+%EA%B5%AD%EB%82%B4%EC%9B%90%EC%B2%9C%EC%86%8C%EB%93%9D">외국법인 국내원천소득</a><a class="tchip" href="all.html?issue=%EA%B0%80%EC%83%81%EC%9E%90%EC%82%B0+%EA%B1%B0%EB%9E%98%EC%B0%A8%EC%9D%B5">가상자산 거래차익</a><a class="tchip" href="all.html?issue=%EC%9B%90%EC%B2%9C%EC%A7%95%EC%88%98%EC%9D%98%EB%AC%B4">원천징수의무</a><a class="tchip" href="all.html?issue=%EA%B5%AD%EB%82%B4%EC%9B%90%EC%B2%9C+%EA%B8%B0%ED%83%80%EC%86%8C%EB%93%9D">국내원천 기타소득</a><a class="tchip" href="all.html?issue=%EC%A1%B0%EC%84%B8%EB%B2%95%EB%A5%A0%EC%A3%BC%EC%9D%98">조세법률주의</a><a class="tchip" href="all.html?outcome=%EB%82%A9%EC%84%B8%EC%9E%90%EC%8A%B9">납세자승</a></div>
+<div style="margin-top:8px;font-size:12px;color:var(--sub)">
+태그를 누르면 같은 태그가 붙은 판례만 모아 봅니다.</div></section>
+<section><h3>쟁점 요약</h3>
+<div>가상자산 거래소를 운영하는 내국법인이 비거주자 및 외국법인의 가상자산 거래차익에 대해 원천징수를 하지 않았다는 이유로 법인세(원천징수분) 등을 부과받은 사건입니다. 법원은 분산원장 기반의 가상자산은 물리적·장소적으로 국내에 소재하는 자산으로 볼 수 없으며, 열거주의를 취하는 구 법인세법 및 구 소득세법상 과세대상으로 명시되지 않은 이상 국내원천소득으로 확장해석할 수 없다고 판단하였습니다. 따라서 해당 거래차익이 국내원천소득에 해당함을 전제로 거래소에 원천징수의무 불이행에 따른 법인세 등을 부과한 처분은 위법하여 전부 취소되었습니다.</div></section>
+<section><h3>경정청구 실익</h3>
+<div>가상자산 과세 시행 유예기간(개정 세법 시행 전) 중 외국법인 또는 비거주자의 가상자산 거래차익에 대해 과세관청의 부과처분을 받아 세액을 납부했거나 자진 원천징수하여 납부한 가상자산 사업자는 국내원천소득 부존재 법리를 근거로 세액 환급을 위한 경정청구를 검토할 실익이 있습니다.</div>
+<div style="margin-top:10px;font-size:13px;color:var(--sub)">
+일반화 가능성: 예 — 구 법인세법 및 구 소득세법상 가상자산의 자산 소재지 및 국내원천 기타소득 해당 여부에 대한 법리적 판단으로, 개정 세법 시행 전 동일 유형의 거래차익에 대해 원천징수의무를 부담하거나 부과처분을 받은 가상자산 거래소 사업자 전반에 일반적으로 적용 가능한 법리입니다.</div></section>
+<section><h3>대상 회사</h3><ul><li><b>금융·보험업</b> (금융업) — 85점<br><span style='font-size:13px;color:var(--sub)'>업종코드 일치 (표준산업분류 66 ↔ 관심 분류 66)</span></li><li><b>정보통신·서비스업</b> (정보통신업) — 85점<br><span style='font-size:13px;color:var(--sub)'>업종코드 일치 (표준산업분류 63 ↔ 관심 분류 63)</span></li><li><b>지주회사·투자업</b> (지주회사) — 80점<br><span style='font-size:13px;color:var(--sub)'>키워드 일치: 투자업</span></li></ul></section>
+<section><h3>확인할 것</h3><ul><li>2020~2024 사업연도 중 비거주자 또는 외국법인의 가상자산 매도·인출 거래에 대해 법인세(원천분)를 원천징수 납부했거나 세무조사 등으로 고지받아 납부한 이력이 있는지 확인</li><li>해당 거래가 가상자산 과세 관련 개정 법인세법 규정 시행일(유예 규정 적용) 이전에 발생한 거래인지 확인</li><li>원천징수 납부일 또는 법정신고기한으로부터 국세기본법상 5년 이내 경정청구 가능 기간이 남아있는지 확인</li></ul></section>
+<section><h3>청구 기한</h3><ul><li>통상적 경정청구(국기법 §45조의2①): 12월 결산 법인 기준 2021~2025 사업연도가 아직 5년 이내입니다. 가장 먼저 만료되는 것은 2021 사업연도이며 기한은 2027-03-31입니다.</li><li>결산월이 12월이 아니면 위 날짜는 그대로 적용되지 않습니다.</li></ul></section>
+<section><h3>원문</h3><a href="https://www.law.go.kr/LSW/precInfoP.do?precSeq=624769" target="_blank" rel="noopener" class="urltext">https://www.law.go.kr/LSW/precInfoP.do?precSeq=624769</a></section>
+<section><h3>유의사항</h3><div style="font-size:13px;color:var(--sub)">본 판결은 행정법원 1심 판결로서 과세관청의 항소 및 상고에 따라 상급심에서 판단이 변경될 가능성이 있으며, 가상자산 거래 과세 유예 관련 법령 개정 추이를 면밀히 살펴야 합니다. 이 분석은 참고자료이며 최종 판단은 세무대리인의 검토를 전제로 합니다.</div></section>
+<div id="tr-manual" style="display:none">
+  <div class="manual-head">
+    <b>길게 눌러 → 복사</b>
+    <button type="button" id="tr-manual-all">전체선택</button>
+    <button type="button" id="tr-manual-close">닫기</button>
+  </div>
+  <textarea readonly rows="12"></textarea>
+  <div class="manual-tip">이 화면은 HTTPS가 아니라 브라우저가 자동 복사를 막습니다.
+  한 번만 설정하면 버튼 한 번으로 복사됩니다 — 상태 화면의 안내를 참고하세요.</div>
+</div>
+</main>
+<footer>자동 분석 결과입니다. 실제 경정청구 전 세무대리인 검토가 필요합니다.</footer>
+<script>
+function trIsIOS(){
+  return /iPad|iPhone|iPod/.test(navigator.userAgent)
+      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+function trCopy(text){
+  if (navigator.clipboard && window.isSecureContext) {
+    return navigator.clipboard.writeText(text);
+  }
+  // iOS에서는 execCommand가 성공을 반환해도 클립보드에 들어가지 않습니다.
+  // 거짓 성공을 표시하지 않도록 시도조차 하지 않습니다.
+  if (trIsIOS()) {
+    return Promise.reject(new Error('ios-insecure'));
+  }
+  return new Promise(function(resolve, reject){
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '0';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    try {
+      ta.select();
+      var ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      ok ? resolve() : reject(new Error('execCommand failed'));
+    } catch (err) {
+      document.body.removeChild(ta);
+      reject(err);
+    }
+  });
+}
+
+function trFlash(btn, msg, bad){
+  var original = btn.dataset.label;
+  btn.textContent = msg;
+  btn.classList.add(bad ? 'fail' : 'done');
+  setTimeout(function(){
+    btn.textContent = original;
+    btn.classList.remove('done', 'fail');
+  }, 1800);
+}
+
+// 자동 복사가 불가능한 경우: 내용을 펼쳐 전체 선택해 둡니다.
+// 사용자는 길게 눌러 '복사'만 누르면 됩니다.
+function trManual(text){
+  var box = document.getElementById('tr-manual');
+  if (!box) return;
+  var ta = box.querySelector('textarea');
+  ta.value = text;
+  box.style.display = 'block';
+  box.scrollIntoView({behavior:'smooth', block:'center'});
+  setTimeout(function(){
+    ta.focus();
+    ta.setSelectionRange(0, ta.value.length);
+  }, 250);
+}
+
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('.copy');
+  if (btn) {
+    e.preventDefault();
+    e.stopPropagation();
+    var el = document.getElementById(btn.dataset.target);
+    if (!el) return;
+    var text = JSON.parse(el.textContent);
+    trCopy(text).then(function(){
+      trFlash(btn, '\u2705 복사됨');
+    }).catch(function(){
+      trFlash(btn, '\u2193 아래에서 복사', true);
+      trManual(text);
+    });
+    return;
+  }
+  if (e.target.id === 'tr-manual-close') {
+    document.getElementById('tr-manual').style.display = 'none';
+  }
+  if (e.target.id === 'tr-manual-all') {
+    var ta2 = document.querySelector('#tr-manual textarea');
+    ta2.focus();
+    ta2.setSelectionRange(0, ta2.value.length);
+  }
+});
+</script>
+</body></html>

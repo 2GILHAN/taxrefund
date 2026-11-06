@@ -1,0 +1,1012 @@
+<!doctype html><html lang="ko"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1e2126">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>알림 · 세무 경정청구</title><style>
+:root{--bg:#f6f7f9;--card:#fff;--txt:#1c1e21;--sub:#6b7280;--line:#e5e7eb;
+      --hi:#e74c3c;--mid:#e67e22;--lo:#3498db;--ok:#16a34a;--warn:#f59e0b}
+@media(prefers-color-scheme:dark){:root{--bg:#15171a;--card:#1e2126;--txt:#e8eaed;
+      --sub:#9aa0a6;--line:#2c3036}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--txt);
+     font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",
+     "Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.6;
+     padding-bottom:env(safe-area-inset-bottom)}
+a{color:inherit;text-decoration:none}
+header{position:sticky;top:0;z-index:10;background:var(--card);border-bottom:1px solid var(--line);
+       padding:12px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header h1{font-size:17px;margin:0;font-weight:650}
+nav{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+nav a{font-size:13px;padding:6px 12px;border-radius:999px;background:var(--bg);
+      border:1px solid var(--line);white-space:nowrap}
+nav a.on{background:var(--txt);color:var(--card);border-color:var(--txt)}
+main{padding:16px;max-width:820px;margin:0 auto}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;
+      text-align:center;display:block;transition:transform .06s,border-color .12s}
+.stat:active{transform:scale(.96);border-color:var(--txt)}
+@media(hover:hover){.stat:hover{border-color:var(--txt)}}
+.stat b{display:block;font-size:22px;line-height:1.2}
+.stat span{font-size:11px;color:var(--sub)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.chip{font-size:13px;padding:7px 14px;border-radius:999px;background:var(--card);
+      border:1px solid var(--line);color:var(--sub);white-space:nowrap}
+.chip.on{background:var(--txt);color:var(--card);border-color:var(--txt);font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+      padding:14px;margin-bottom:12px;display:block}
+.card h2{font-size:16px;margin:0 0 8px;line-height:1.45;font-weight:640}
+.meta{font-size:12px;color:var(--sub);margin-bottom:8px}
+.sum{font-size:14px;color:var(--txt);opacity:.9}
+.score{display:inline-block;min-width:44px;text-align:center;color:#fff;font-weight:700;
+       font-size:13px;padding:3px 8px;border-radius:8px;margin-right:8px}
+.s-hi{background:var(--hi)}.s-mid{background:var(--mid)}.s-lo{background:var(--lo)}
+.s-no{background:var(--sub)}
+.tags{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:11px;padding:3px 9px;border-radius:999px;background:var(--bg);
+     border:1px solid var(--line);color:var(--sub)}
+.tag.co{border-color:var(--ok);color:var(--ok)}
+.tag.no{border-color:var(--sub)}
+.tag.smp{border-color:var(--warn);color:var(--warn);font-weight:600}
+.tag.tx{border-color:var(--lo);color:var(--lo)}
+.tag.ind{border-color:var(--line);color:var(--txt);opacity:.75}
+.tag.src{border-color:var(--line);color:var(--sub);opacity:.7}
+.search{display:flex;gap:6px;margin-bottom:12px}
+.search input[type=search]{flex:1;min-width:0;font-size:15px;padding:9px 13px;
+     border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--txt);
+     -webkit-appearance:none}
+.search button{font-size:14px;padding:9px 16px;border-radius:10px;border:1px solid var(--txt);
+     background:var(--txt);color:var(--card);font-weight:600;white-space:nowrap}
+.facet{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px}
+.fname{font-size:11px;color:var(--sub);flex:0 0 34px;padding-top:6px;font-weight:600}
+/* 태그가 많아 줄바꿈으로 쌓이면 카드가 화면 밖으로 밀립니다.
+   가로 스크롤로 두어 목록이 늘 보이게 합니다. */
+.tchips{display:flex;gap:5px;overflow-x:auto;padding-bottom:3px;
+     scrollbar-width:none;-ms-overflow-style:none}
+.tchips::-webkit-scrollbar{display:none}
+.tchip{font-size:12px;padding:5px 11px;border-radius:999px;background:var(--card);
+     border:1px solid var(--line);color:var(--sub);white-space:nowrap;flex:0 0 auto}
+.tchip.on{background:var(--lo);color:#fff;border-color:var(--lo);font-weight:600}
+.tchip i{font-style:normal;opacity:.55;margin-left:5px;font-size:11px}
+.fsum{font-size:12px;color:var(--sub);margin:10px 0 12px}
+.clear{margin-left:10px;color:var(--hi);border-bottom:1px solid currentColor}
+/* 카드는 더 이상 통째로 링크가 아닙니다. 안에 태그 링크가 들어가는데
+   링크 안의 링크는 브라우저가 끊어 버리기 때문입니다. 제목만 링크입니다. */
+.card .ttl{display:block}
+.card .tags:empty{display:none}
+.card .tags{margin-top:8px}
+.tag.iss{border-color:var(--line);color:var(--sub)}
+.who{margin-top:8px;font-size:11px;color:var(--sub);opacity:.85}
+.quick{background:var(--card);border:1px solid var(--line);border-radius:14px;
+     padding:12px 14px;margin-bottom:14px}
+.quick .facet:last-child{margin-bottom:0}
+.lead{font-size:14px;color:var(--sub);margin-bottom:14px;line-height:1.65}
+.blist{display:flex;flex-direction:column;gap:1px;background:var(--line);
+     border-radius:10px;overflow:hidden}
+.brow{display:flex;align-items:center;gap:10px;background:var(--card);
+     padding:11px 13px}
+.brow:active{background:var(--bg)}
+@media(hover:hover){.brow:hover{background:var(--bg)}}
+.bname{flex:1;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;
+     white-space:nowrap}
+.bnum{font-size:12px;color:var(--sub);white-space:nowrap}
+.bmore{font-size:12px;color:var(--sub);margin-top:8px}
+.banner{border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:14px;
+        border:1px solid var(--warn);background:color-mix(in srgb,var(--warn) 12%,transparent)}
+.banner b{color:var(--warn)}
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;
+        padding:14px;margin-bottom:12px}
+section h3{font-size:13px;margin:0 0 10px;color:var(--sub);font-weight:600;
+           letter-spacing:.04em;text-transform:uppercase}
+ul{margin:0;padding-left:20px}li{margin-bottom:6px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px}
+.kv dt{color:var(--sub)}.kv dd{margin:0}
+.empty{text-align:center;color:var(--sub);padding:48px 16px;font-size:14px}
+footer{text-align:center;color:var(--sub);font-size:11px;padding:24px 16px}
+.back{font-size:13px;color:var(--sub);margin-bottom:12px;display:inline-block}
+code{background:var(--bg);padding:2px 6px;border-radius:6px;font-size:13px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;
+     margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+button.copy{font:inherit;font-size:14px;padding:9px 14px;border-radius:10px;cursor:pointer;
+     background:var(--txt);color:var(--card);border:1px solid var(--txt);
+     transition:transform .06s,background .12s,color .12s,border-color .12s}
+button.copy:active{transform:scale(.96)}
+button.copy.ghost{background:var(--card);color:var(--txt)}
+button.copy.mini{font-size:11px;padding:3px 9px;border-radius:999px;margin-left:8px;
+     background:var(--bg);color:var(--sub);border-color:var(--line);
+     font-weight:500;letter-spacing:0;text-transform:none;vertical-align:middle}
+button.copy.done{background:var(--ok);color:#fff;border-color:var(--ok)}
+button.copy.fail{background:var(--warn);color:#fff;border-color:var(--warn)}
+.urltext{word-break:break-all;font-size:13px;color:var(--lo)}
+#tr-manual{position:sticky;bottom:0;margin-top:14px;background:var(--card);
+     border:2px solid var(--warn);border-radius:12px;padding:12px;
+     box-shadow:0 -4px 20px rgba(0,0,0,.18)}
+.manual-head{font-size:14px;color:var(--txt);margin-bottom:8px;display:flex;
+     align-items:center;gap:8px;flex-wrap:wrap}
+.manual-head b{color:var(--warn)}
+#tr-manual-all,#tr-manual-close{font:inherit;font-size:12px;padding:5px 11px;
+     border-radius:8px;background:var(--bg);color:var(--txt);
+     border:1px solid var(--line);cursor:pointer}
+#tr-manual-all{margin-left:auto}
+#tr-manual textarea{width:100%;font-size:16px;line-height:1.5;padding:10px;
+     border-radius:8px;border:1px solid var(--line);background:var(--bg);
+     color:var(--txt);resize:vertical;font-family:inherit;-webkit-user-select:text}
+.manual-tip{font-size:11px;color:var(--sub);margin-top:8px;line-height:1.5}
+</style></head><body>
+<header><h1>📑 법인세 경정청구</h1><nav><a href="index.html" class="on">알림</a><a href="all.html" class="">전체</a><a href="browse.html" class="">분류</a><a href="status.html" class="">상태</a></nav></header>
+<main><div style="font-size:12px;color:var(--sub);margin:0 0 12px">정적 스냅샷 · 2026-11-06 18:06 KST 기준</div><div class="stats"><a class="stat" href="all.html?f=all"><b>575</b><span>수집</span></a><a class="stat" href="all.html?f=all"><b>574</b><span>분석</span></a><a class="stat" href="all.html?f=alert"><b>97</b><span>알림 대상</span></a><a class="stat" href="all.html?f=pending"><b>87</b><span>미발송</span></a></div><div class="quick"><div class="facet"><span class="fname">세목</span><div class="tchips"><a class="tchip" href="all.html?f=alert&amp;tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세<i>87</i></a><a class="tchip" href="all.html?f=alert&amp;tax=%EC%83%81%EC%86%8D%EC%A6%9D%EC%97%AC%EC%84%B8">상속증여세<i>7</i></a><a class="tchip" href="all.html?f=alert&amp;tax=%EB%B6%80%EA%B0%80%EA%B0%80%EC%B9%98%EC%84%B8">부가가치세<i>3</i></a></div></div><div class="facet"><span class="fname">업종</span><div class="tchips"><a class="tchip" href="all.html?f=alert&amp;industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종<i>64</i></a><a class="tchip" href="all.html?f=alert&amp;industry=%EC%A0%9C%EC%A1%B0%EC%97%85">제조업<i>17</i></a><a class="tchip" href="all.html?f=alert&amp;industry=%EA%B1%B4%EC%84%A4%EC%97%85">건설업<i>12</i></a><a class="tchip" href="all.html?f=alert&amp;industry=%EA%B8%88%EC%9C%B5%EC%97%85">금융업<i>12</i></a><a class="tchip" href="all.html?f=alert&amp;industry=%EC%A7%80%EC%A3%BC%ED%9A%8C%EC%82%AC">지주회사<i>11</i></a><a class="tchip" href="all.html?f=alert&amp;industry=%EB%B9%84%EC%83%81%EC%9E%A5+%EC%A4%91%EC%86%8C%EA%B8%B0%EC%97%85">비상장 중소기업<i>10</i></a><a class="tchip" href="all.html?f=alert&amp;industry=%EB%8F%84%EC%86%8C%EB%A7%A4%EC%97%85">도소매업<i>9</i></a><a class="tchip" href="all.html?f=alert&amp;industry=%EB%B9%84%EC%98%81%EB%A6%AC%EB%B2%95%EC%9D%B8">비영리법인<i>8</i></a></div></div></div><div class="card">
+<a class="ttl" href="d-prec-617725.html">
+<h2><span class="score s-hi">100</span>국외 사용분 발급사일일분담금은 포괄적 역무 대가여서 법인세 경정청구 거부는 위법</h2>
+<div class="meta">이 사건 처분 중 발급사일일분담금에 관한 법인세의 환급을 구하는 경정청구를 거부한 부분은 위법함 · - · 대법원-2024-두-65386
+ · 2025-03-27 · 납세자승 · 영향도 상</div>
+<div class="sum">카드사가 해외카드사에 지급한 분담금에 대해 원천징수한 법인세의 환급을 구하는 경정청구를 했다가 거부된 사안. 원심은 발급사분담금(국내 사용분)은 상표권 사용의 대가이지만 발급사일일분담금(국외 사용분)은 포괄적 역무 제공의 대가로 보아야 하므로, 발급사일일분담금에 관한 법인세 환급 경정청구를 거부한 부분은 위법하다고 보았고…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%B9%B4%EB%93%9C%EC%97%85">카드업</a><a class="tag ind" href="all.html?industry=%EC%9D%80%ED%96%89%EC%97%85">은행업</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EB%82%B4%EC%9B%90%EC%B2%9C%EC%86%8C%EB%93%9D">국내원천소득</a><a class="tag iss" href="all.html?issue=%EC%82%AC%EC%9A%A9%EB%A3%8C%EC%86%8C%EB%93%9D">사용료소득</a><a class="tag iss" href="all.html?issue=%EC%82%AC%EC%97%85%EC%86%8C%EB%93%9D">사업소득</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 금융·보험업</div></div><div class="card">
+<a class="ttl" href="d-prec-619287.html">
+<h2><span class="score s-hi">100</span>생산성향상시설 투자세액공제 대상은 직접 지출 비용 — 건설자금이자·시운전비는 포함</h2>
+<div class="meta">법인세경정거부처분취소 · 대구고등법원 · 2023누12751
+ · 2025-01-10 · 일부승 · 영향도 상</div>
+<div class="sum">원자력발전소를 건설한 원고가 구 조세특례제한법 제24조 생산성향상시설 투자세액공제를 받지 못했다며 경정청구를 하였고, 과세관청이 건설자금이자·시운전비·건설소비·일반기기 설치공사비·본부비·해외사무소비·비품비를 투자금액에서 제외한 사안입니다. 법원은 조특법상 &#x27;투자금액&#x27;을 법인세법상 &#x27;취득가액&#x27;과 동일하게 볼 수 없고, 생산…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EA%B8%B0%EC%97%85">전기업</a><a class="tag ind" href="all.html?industry=%EC%A0%9C%EC%A1%B0%EC%97%85">제조업</a><a class="tag iss" href="all.html?issue=%EC%83%9D%EC%82%B0%EC%84%B1%ED%96%A5%EC%83%81%EC%8B%9C%EC%84%A4+%ED%88%AC%EC%9E%90%EC%84%B8%EC%95%A1%EA%B3%B5%EC%A0%9C">생산성향상시설 투자세액공제</a><a class="tag iss" href="all.html?issue=%ED%88%AC%EC%9E%90%EA%B8%88%EC%95%A1%EC%9D%98+%EB%B2%94%EC%9C%84">투자금액의 범위</a><a class="tag iss" href="all.html?issue=%EA%B1%B4%EC%84%A4%EC%9E%90%EA%B8%88%EC%9D%B4%EC%9E%90">건설자금이자</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업</div></div><div class="card">
+<a class="ttl" href="d-prec-241209.html">
+<h2><span class="score s-hi">100</span>국제운송 외국법인은 국내 선적분만 국내원천소득 — 그 범위 증명책임은 과세관청</h2>
+<div class="meta">법인세등부과처분취소[국내사업장을 가진 외국법인이 국내 및 국외에 걸쳐 선박에 의한 국제운송업을 영위하면서 발생한 소득의 법인세 과세대상 해당 여부와 과세표준 증명책임 등이 문제된 사건] · 대법원 · 2022두51031
+ · 2024-07-25 · 납세자승 · 영향도 상</div>
+<div class="sum">국내사업장을 가진 외국법인이 선박으로 국내외에 걸쳐 자동차 해상운송업을 영위한 사안에서, 과세관청이 손익계산서상 매출수익 전부를 국내원천 기타소득으로 보아 법인세를 부과하였습니다. 대법원은 구 법인세법 제93조 제5호와 시행령 제132조 제2항 제7호에 따라 국내에서 승선한 여객이나 선적한 화물과 관련하여 발생한 소득만이…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%ED%95%B4%EC%9A%B4%EC%97%85">해운업</a><a class="tag ind" href="all.html?industry=%EA%B5%AD%EC%A0%9C%EC%9A%B4%EC%86%A1%EC%97%85">국제운송업</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EB%82%B4%EC%9B%90%EC%B2%9C%EC%86%8C%EB%93%9D">국내원천소득</a><a class="tag iss" href="all.html?issue=%EC%99%B8%EA%B5%AD%ED%95%AD%ED%96%89%EC%86%8C%EB%93%9D">외국항행소득</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EC%A0%9C%EC%9A%B4%EC%86%A1%EC%97%85">국제운송업</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 운수·물류업</div></div><div class="card">
+<a class="ttl" href="d-prec-349342.html">
+<h2><span class="score s-hi">100</span>장애인 고용부담금은 손금산입 항목이어서 경정청구 거부처분이 취소됨 (제1심)</h2>
+<div class="meta">이 사건 장애인고용부담금이 손금 산입 대상인지 여부 · - · 서울행정법원-2022-구합-65757
+ · 2023-05-02 · 납세자승 · 영향도 상</div>
+<div class="sum">저축은행이 2019·2020 사업연도 법인세를 신고하면서 장애인 고용부담금을 손금에 산입하지 않았다가 경정청구를 했으나 거부된 사안의 제1심. 법원은 그 장애인 고용부담금이 손금산입 항목이라고 보아 경정거부처분을 취소함.</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EC%83%81%EC%8B%9C%EA%B7%BC%EB%A1%9C%EC%9E%90+50%EC%9D%B8+%EC%9D%B4%EC%83%81+%EB%B2%95%EC%9D%B8">상시근로자 50인 이상 법인</a><a class="tag iss" href="all.html?issue=%EC%9E%A5%EC%95%A0%EC%9D%B8+%EA%B3%A0%EC%9A%A9%EB%B6%80%EB%8B%B4%EA%B8%88">장애인 고용부담금</a><a class="tag iss" href="all.html?issue=%EC%86%90%EA%B8%88%EC%82%B0%EC%9E%85">손금산입</a><a class="tag iss" href="all.html?issue=%EA%B3%B5%EA%B3%BC%EA%B8%88">공과금</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 금융·보험업, 제조업, 건설·부동산업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-232883.html">
+<h2><span class="score s-hi">100</span>합병당사법인 주식을 함께 보유했다면 분여 손실과 분여받은 이익을 통산해야</h2>
+<div class="meta">법인세등부과처분취소 · 대법원 · 2018두59182
+ · 2022-12-29 · 납세자승 · 영향도 상</div>
+<div class="sum">법인이 합병당사법인 두 곳의 주식을 각각 9.01%와 13.33% 보유한 상태에서 불공정 분할합병이 이루어지자, 과세관청은 주가가 과소평가된 법인의 주주로서 분여한 이익 5억 1천만 원에는 부당행위계산 부인 규정을, 주가가 과대평가된 법인의 주주로서 분여받은 이익 7억 900만 원에는 익금 규정을 각각 적용해 두 금액을 …</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EC%A7%80%EC%A3%BC%ED%9A%8C%EC%82%AC">지주회사</a><a class="tag iss" href="all.html?issue=%EB%B6%88%EA%B3%B5%EC%A0%95%ED%95%A9%EB%B3%91">불공정합병</a><a class="tag iss" href="all.html?issue=%EB%B6%84%EC%97%AC%EC%9D%B4%EC%9D%B5+%ED%86%B5%EC%82%B0">분여이익 통산</a><a class="tag iss" href="all.html?issue=%EB%B6%80%EB%8B%B9%ED%96%89%EC%9C%84%EA%B3%84%EC%82%B0+%EB%B6%80%EC%9D%B8">부당행위계산 부인</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 지주회사·투자업, 금융·보험업, 제조업, 건설·부동산업</div></div><div class="card">
+<a class="ttl" href="d-prec-230921.html">
+<h2><span class="score s-hi">100</span>국내 미등록 특허권 사용료는 국내원천소득이 아니어서 원천징수 대상이 아니다</h2>
+<div class="meta">법인세원천징수처분등취소 · 대법원 · 2019두47100
+ · 2022-02-24 · 납세자승 · 영향도 상</div>
+<div class="sum">전자회사가 미국 소프트웨어 기업과 안드로이드 기반 스마트폰·태블릿 기기당 일정액을 지급하는 계약을 체결하고 사용료를 지급하면서 원천징수 법인세를 납부하였는데, 과세관청이 상계 전 사용료 전액을 기준으로 산정한 세액과의 차액을 추가로 고지한 사안입니다. 대법원은 구 법인세법 제93조 제8호 단서 후문이 국외 등록 특허권도 …</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EC%A0%9C%EC%A1%B0%EC%97%85">제조업</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EB%82%B4%EC%9B%90%EC%B2%9C%EC%86%8C%EB%93%9D">국내원천소득</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EB%82%B4+%EB%AF%B8%EB%93%B1%EB%A1%9D+%ED%8A%B9%ED%97%88%EA%B6%8C">국내 미등록 특허권</a><a class="tag iss" href="all.html?issue=%ED%8A%B9%ED%97%88%EA%B6%8C+%EC%86%8D%EC%A7%80%EC%A3%BC%EC%9D%98">특허권 속지주의</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업, 정보통신·서비스업, 건설·부동산업, 금융·보험업</div></div><div class="card">
+<a class="ttl" href="d-prec-606935.html">
+<h2><span class="score s-hi">98</span>국외 사용분 분담금은 포괄적 역무 대가여서 법인세 경정청구 거부는 위법 (항소심)</h2>
+<div class="meta">이 사건 처분 중 발급사일일분담금에 관한 법인세의 환급을 구하는 경정청구를 거부한 부분은 위법함 · - · 서울고등법원-2022-누-54063
+ · 2024-11-12 · 납세자승 · 영향도 상</div>
+<div class="sum">카드사가 해외카드사에 지급한 분담금에 대해 원천징수한 법인세의 환급을 구하는 경정청구가 거부되자 다툰 사안의 항소심. 법원은 발급사분담금(국내 사용분)은 상표권 사용의 대가이지만 발급사일일분담금(국외 사용분)은 포괄적 역무 제공의 대가로 보아야 하므로 발급사일일분담금에 관한 법인세 환급 경정청구를 거부한 부분은 위법하다며…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%B9%B4%EB%93%9C%EC%97%85">카드업</a><a class="tag ind" href="all.html?industry=%EC%9D%80%ED%96%89%EC%97%85">은행업</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EB%82%B4%EC%9B%90%EC%B2%9C%EC%86%8C%EB%93%9D">국내원천소득</a><a class="tag iss" href="all.html?issue=%EC%82%AC%EC%9A%A9%EB%A3%8C%EC%86%8C%EB%93%9D">사용료소득</a><a class="tag iss" href="all.html?issue=%EC%82%AC%EC%97%85%EC%86%8C%EB%93%9D">사업소득</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 금융·보험업</div></div><div class="card">
+<a class="ttl" href="d-prec-241587.html">
+<h2><span class="score s-hi">97</span>확정판결에 따라 지급한 손해배상금은 사회질서 위반이 아니어서 손금 산입</h2>
+<div class="meta">법인세부과처분취소 · 대법원 · 2021두35308
+ · 2024-09-12 · 납세자승 · 영향도 상</div>
+<div class="sum">금융지주회사의 자회사 은행이 공동불법행위로 인한 손해배상 소송에서 패소하여 확정판결의 취지에 따라 150억 원과 지연손해금을 지급하였고, 지주회사는 판결이 확정된 2016 사업연도에 이를 손금에 산입하였으나 과세관청이 손금불산입하여 법인세를 경정·고지한 사안입니다. 대법원은 구 법인세법 제19조 제2항의 &#x27;일반적으로 인정…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag iss" href="all.html?issue=%EC%86%90%ED%95%B4%EB%B0%B0%EC%83%81%EA%B8%88+%EC%86%90%EA%B8%88%EC%82%B0%EC%9E%85">손해배상금 손금산입</a><a class="tag iss" href="all.html?issue=%ED%86%B5%EC%83%81%EC%A0%81%EC%9D%B8+%EB%B9%84%EC%9A%A9">통상적인 비용</a><a class="tag iss" href="all.html?issue=%EC%82%AC%ED%9A%8C%EC%A7%88%EC%84%9C+%EC%9C%84%EB%B0%98">사회질서 위반</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 지주회사·투자업, 금융·보험업, 제조업, 건설·부동산업</div></div><div class="card">
+<a class="ttl" href="d-prec-232923.html">
+<h2><span class="score s-hi">97</span>제휴 회원 몫을 대신 지급한 분담금에는 지급조서 제출의무가 없다 — 구분 불가 시 전부 취소</h2>
+<div class="meta">법인세등부과처분취소 · 대법원 · 2019두33903
+ · 2022-07-28 · 납세자승 · 영향도 상</div>
+<div class="sum">카드사가 미국 카드사의 주 회원으로서 제휴 회원인 11개 국내 은행의 분담금까지 대신 지급하였는데, 과세관청이 분담금 전액을 상표권 사용 대가인 국내원천소득으로 보아 지급조서 미제출 가산세와 부가가치세 대리납부를 고지한 사안입니다. 대법원은 먼저 분담금에 회원은행들이 지급해야 할 대행사업분이 포함되어 있으므로 그 범위에서…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%8B%A0%EC%9A%A9%EC%B9%B4%EB%93%9C%EC%97%85">신용카드업</a><a class="tag ind" href="all.html?industry=%EC%97%AC%EC%8B%A0%EC%A0%84%EB%AC%B8%EA%B8%88%EC%9C%B5%EC%97%85">여신전문금융업</a><a class="tag iss" href="all.html?issue=%EC%A7%80%EA%B8%89%EC%A1%B0%EC%84%9C+%EC%A0%9C%EC%B6%9C%EC%9D%98%EB%AC%B4">지급조서 제출의무</a><a class="tag iss" href="all.html?issue=%EC%9B%90%EC%B2%9C%EC%A7%95%EC%88%98%EC%97%85%EB%AC%B4+%EC%9C%84%EC%9E%84">원천징수업무 위임</a><a class="tag iss" href="all.html?issue=%EB%AC%B5%EC%8B%9C%EC%A0%81+%EC%9C%84%EC%9E%84">묵시적 위임</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 금융·보험업, 지주회사·투자업</div></div><div class="card">
+<a class="ttl" href="d-prec-603517.html">
+<h2><span class="score s-hi">95</span>장차 고유목적사업에 지출될 가능성이 없다는 이유로 준비금 손금산입한도에서 뺄 수 없음</h2>
+<div class="meta">수익사업에서 발생한 소득금액이 장차 고유목적사업 등에 지출될 가능성이 없다는 이유로 고유목적사업준비금 손금산입한도액에서 제외되어야 한다고 볼 수는 없음 · - · 대법원-2021-두-31535
+ · 2024-07-25 · 납세자승 · 영향도 상</div>
+<div class="sum">학교법인이 부동산 양도차익을 고유목적사업준비금 손금산입한도액 계산에 포함해 달라며 낸 경정청구가 거부된 사안. 대법원은 그 양도차익이 해당 사업연도 수익사업에서 발생한 소득금액으로서 구 법인세법 시행령 제56조 제3항의 차감대상에 해당하지 않으므로 구 법인세법 제29조 제1항 제4호의 &#x27;수익사업에서 발생한 소득&#x27;으로서 손…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EB%B9%84%EC%98%81%EB%A6%AC%EB%B2%95%EC%9D%B8">비영리법인</a><a class="tag ind" href="all.html?industry=%ED%95%99%EA%B5%90%EB%B2%95%EC%9D%B8">학교법인</a><a class="tag iss" href="all.html?issue=%EA%B3%A0%EC%9C%A0%EB%AA%A9%EC%A0%81%EC%82%AC%EC%97%85%EC%A4%80%EB%B9%84%EA%B8%88">고유목적사업준비금</a><a class="tag iss" href="all.html?issue=%EC%86%90%EA%B8%88%EC%82%B0%EC%9E%85%ED%95%9C%EB%8F%84">손금산입한도</a><a class="tag iss" href="all.html?issue=%EB%B9%84%EC%98%81%EB%A6%AC%EB%B2%95%EC%9D%B8">비영리법인</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 비영리·공익법인</div></div><div class="card">
+<a class="ttl" href="d-prec-227729.html">
+<h2><span class="score s-hi">95</span>국외 거래금액 기준 카드 분담금은 상표권 사용료가 아니라 전부 사업소득</h2>
+<div class="meta">법인세등부과처분취소 · 대법원 · 2018두39621
+ · 2022-07-28 · 납세자승 · 영향도 상</div>
+<div class="sum">신용카드사들이 국내사업장이 없는 미국 카드사에 상표를 부착한 카드의 사용과 관련해 국내 거래금액 기준 발급사분담금과 국외 거래금액 기준 발급사일일분담금을 지급하자, 과세관청이 두 분담금 모두 상표권 사용 대가인 국내원천 사용료소득이라며 지급조서 미제출 가산세를 부과한 사안입니다. 대법원은 국내 거래금액을 기준으로 산정되는…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%8B%A0%EC%9A%A9%EC%B9%B4%EB%93%9C%EC%97%85">신용카드업</a><a class="tag ind" href="all.html?industry=%EC%97%AC%EC%8B%A0%EC%A0%84%EB%AC%B8%EA%B8%88%EC%9C%B5%EC%97%85">여신전문금융업</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EB%82%B4%EC%9B%90%EC%B2%9C%EC%86%8C%EB%93%9D">국내원천소득</a><a class="tag iss" href="all.html?issue=%EC%82%AC%EC%9A%A9%EB%A3%8C%EC%86%8C%EB%93%9D">사용료소득</a><a class="tag iss" href="all.html?issue=%EC%82%AC%EC%97%85%EC%86%8C%EB%93%9D">사업소득</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 금융·보험업, 지주회사·투자업</div></div><div class="card">
+<a class="ttl" href="d-prec-612375.html">
+<h2><span class="score s-hi">94</span>장애인 고용부담금을 손금불산입으로 보아 경정청구를 거부한 처분은 위법</h2>
+<div class="meta">장애인고용부담금을 손금불산입으로 보고 경정청구를 거부한 처분은 위법한 처분에 해당함 · - · 수원고등법원-2024-누-15585
+ · 2025-09-03 · 납세자승 · 영향도 상</div>
+<div class="sum">두 법인이 2018~2020 사업연도 법인세를 신고하면서 장애인 고용부담금을 손금에 산입하지 않았다가 경정청구를 했으나 거부된 사안. 항소심은 장애인 고용부담금이 법령에 따른 의무 불이행에 대해 부과된 공과금이더라도 그 의무 불이행에 대한 &#x27;제재로서&#x27; 부과된 것으로 보기 어렵다며, 손금불산입을 전제로 한 경정청구 거부처분…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EC%83%81%EC%8B%9C%EA%B7%BC%EB%A1%9C%EC%9E%90+50%EC%9D%B8+%EC%9D%B4%EC%83%81+%EB%B2%95%EC%9D%B8">상시근로자 50인 이상 법인</a><a class="tag iss" href="all.html?issue=%EC%9E%A5%EC%95%A0%EC%9D%B8+%EA%B3%A0%EC%9A%A9%EB%B6%80%EB%8B%B4%EA%B8%88">장애인 고용부담금</a><a class="tag iss" href="all.html?issue=%EC%86%90%EA%B8%88%EC%82%B0%EC%9E%85">손금산입</a><a class="tag iss" href="all.html?issue=%EA%B3%B5%EA%B3%BC%EA%B8%88">공과금</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업, 금융·보험업, 건설·부동산업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-619179.html">
+<h2><span class="score s-hi">94</span>국외 사용분 발급사일일분담금 그로스업액은 부가가치세 과세표준에서 제외</h2>
+<div class="meta">해외카드사에 지급한 분담금 중 발급사일일분담금 부분에 관한 법인세 원천세율 그로스업 상당액은 부가가치세 과세표준에서 제외되어야 함 · - · 서울고등법원-2017-누-406
+ · 2025-02-05 · 일부승 · 영향도 상</div>
+<div class="sum">여러 카드사·은행이 해외카드사에 지급한 분담금과 관련해 부가가치세 등 부과처분을 다툰 사안의 항소심. 법원은 분담금 중 발급사일일분담금 부분은 신용카드의 국외 사용과 관련해 해외카드사가 시스템을 통해 제공한 포괄적 역무의 대가로서 전부 사업소득에 해당하고, 사업소득은 국내에 고정사업장이 없는 한 법인세 과세대상도 원천징수…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B6%80%EA%B0%80%EA%B0%80%EC%B9%98%EC%84%B8">부가가치세</a><a class="tag ind" href="all.html?industry=%EC%B9%B4%EB%93%9C%EC%97%85">카드업</a><a class="tag ind" href="all.html?industry=%EC%9D%80%ED%96%89%EC%97%85">은행업</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EB%82%B4%EC%9B%90%EC%B2%9C%EC%86%8C%EB%93%9D">국내원천소득</a><a class="tag iss" href="all.html?issue=%EC%82%AC%EC%97%85%EC%86%8C%EB%93%9D">사업소득</a><a class="tag iss" href="all.html?issue=%EA%B3%A0%EC%A0%95%EC%82%AC%EC%97%85%EC%9E%A5">고정사업장</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 금융·보험업</div></div><div class="card">
+<a class="ttl" href="d-prec-612379.html">
+<h2><span class="score s-hi">94</span>장애인 고용부담금을 손금불산입으로 본 경정청구 거부처분은 위법 (제1심)</h2>
+<div class="meta">장애인고용부담금을 손금불산입으로 보고 경정청구를 거부한 처분은 위법한 처분에 해당함 · - · 수원지방법원-2023-구합-73084
+ · 2024-10-10 · 납세자승 · 영향도 상</div>
+<div class="sum">두 법인이 2018~2020 사업연도 법인세를 신고하면서 장애인 고용부담금을 손금에 산입하지 않았다가 경정청구를 했으나 거부된 사안의 제1심. 법원은 장애인 고용부담금이 법령에 따른 의무 불이행에 대해 부과된 공과금이더라도 그 의무 불이행에 대한 &#x27;제재로서&#x27; 부과된 것으로 보기 어렵다며 경정거부처분을 취소함.</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EC%83%81%EC%8B%9C%EA%B7%BC%EB%A1%9C%EC%9E%90+50%EC%9D%B8+%EC%9D%B4%EC%83%81+%EB%B2%95%EC%9D%B8">상시근로자 50인 이상 법인</a><a class="tag iss" href="all.html?issue=%EC%9E%A5%EC%95%A0%EC%9D%B8+%EA%B3%A0%EC%9A%A9%EB%B6%80%EB%8B%B4%EA%B8%88">장애인 고용부담금</a><a class="tag iss" href="all.html?issue=%EC%86%90%EA%B8%88%EC%82%B0%EC%9E%85">손금산입</a><a class="tag iss" href="all.html?issue=%EA%B3%B5%EA%B3%BC%EA%B8%88">공과금</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업, 금융·보험업, 건설·부동산업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-351228.html">
+<h2><span class="score s-hi">94</span>특약매입거래 매출액은 최종소비자 매출이어서 일감몰아주기 과세표준에서 제외됨</h2>
+<div class="meta">구 상증세 및 증여세법 45조의3 제1항 적용 시 특정매입계약에 따른 매출액을 특수관계법인에 대한 매출액에 포함하는지 여부 · - · 서울고등법원-2023-누-35403
+ · 2023-08-22 · 납세자승 · 영향도 상</div>
+<div class="sum">구 상속세 및 증여세법 제45조의3 제1항(일감몰아주기 증여의제)을 적용할 때 특정매입계약(특약매입)에 따른 매출액을 특수관계법인에 대한 매출액에 포함해야 하는지가 다투어진 사안의 항소심. 법원은 그 특약매입거래 매출액이 기업회계기준상 최종소비자에 대한 매출액이므로 &#x27;특수관계법인에 대한 매출액&#x27;에서 제외된다고 판단함.</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EC%83%81%EC%86%8D%EC%A6%9D%EC%97%AC%EC%84%B8">상속증여세</a><a class="tag ind" href="all.html?industry=%EC%9C%A0%ED%86%B5%EC%97%85">유통업</a><a class="tag ind" href="all.html?industry=%EB%B0%B1%ED%99%94%EC%A0%90%EC%97%85">백화점업</a><a class="tag iss" href="all.html?issue=%EC%9D%BC%EA%B0%90%EB%AA%B0%EC%95%84%EC%A3%BC%EA%B8%B0">일감몰아주기</a><a class="tag iss" href="all.html?issue=%EC%A6%9D%EC%97%AC%EC%9D%98%EC%A0%9C">증여의제</a><a class="tag iss" href="all.html?issue=%ED%8A%B9%EC%95%BD%EB%A7%A4%EC%9E%85">특약매입</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 도소매·유통업, 지주회사·투자업</div></div><div class="card">
+<a class="ttl" href="d-prec-347040.html">
+<h2><span class="score s-hi">94</span>해양수산부에서 받은 국고보조금은 무상으로 받은 자산이어서 이월결손금 보전에 충당 가능</h2>
+<div class="meta">(심리불속행) 원고가 해양수산부로부터 받은 보조금은 법인세법 제18조 제6호 소정의 무상으로 받은 자산의 가액에 해당함 · - · 대법원-2023-두-30758
+ · 2023-03-30 · 납세자승 · 영향도 상</div>
+<div class="sum">중앙회가 해양수산부로부터 받은 국고보조금의 성격이 다투어진 사안. 원심은 그 국고보조금이 법인세법 제18조 제6호의 &#x27;무상으로 받은 자산의 가액&#x27;에 해당하므로 이월결손금에 보전해 충당함으로써 익금에 산입하지 않을 수 있다고 보았고, 대법원은 과세관청의 상고를 기각함(상고비용 피고 부담).</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EB%B9%84%EC%98%81%EB%A6%AC%EB%B2%95%EC%9D%B8">비영리법인</a><a class="tag ind" href="all.html?industry=%ED%98%91%EB%8F%99%EC%A1%B0%ED%95%A9">협동조합</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EA%B3%A0%EB%B3%B4%EC%A1%B0%EA%B8%88">국고보조금</a><a class="tag iss" href="all.html?issue=%EB%AC%B4%EC%83%81%EC%9C%BC%EB%A1%9C+%EB%B0%9B%EC%9D%80+%EC%9E%90%EC%82%B0">무상으로 받은 자산</a><a class="tag iss" href="all.html?issue=%EC%9D%B4%EC%9B%94%EA%B2%B0%EC%86%90%EA%B8%88+%EB%B3%B4%EC%A0%84">이월결손금 보전</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 비영리·공익법인</div></div><div class="card">
+<a class="ttl" href="d-prec-605043.html">
+<h2><span class="score s-hi">94</span>민자사업 시스템 대체비용은 관리운영권의 자본적 지출이나 사용수익기간 균등상각·일시상각은 위법</h2>
+<div class="meta">법인세부과처분취소 · 서울고등법원 · 2022누36584
+ · 2023-02-08 · 납세자승 · 영향도 상</div>
+<div class="sum">민간투자법에 따라 도로를 건설해 국가에 기부채납하고 관리운영권을 설정받은 법인이 지능형 교통체계·요금징수·교량계측 시스템을 주기적으로 대체하며 지출한 비용의 처리가 문제된 사안입니다. 법원은 먼저 시스템 대체비용이 사용수익기부자산인 관리운영권에 대한 자본적 지출에 해당한다고 보았습니다. 하이패스 도입으로 인건비가 절감되고…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EB%AF%BC%EA%B0%84%ED%88%AC%EC%9E%90%EC%82%AC%EC%97%85%28BTO%C2%B7BTL%29+%EC%8B%9C%ED%96%89%EB%B2%95%EC%9D%B8">민간투자사업(BTO·BTL) 시행법인</a><a class="tag ind" href="all.html?industry=%EC%9C%A0%EB%A3%8C%EB%8F%84%EB%A1%9C+%EC%9A%B4%EC%98%81">유료도로 운영</a><a class="tag iss" href="all.html?issue=%EC%82%AC%EC%9A%A9%EC%88%98%EC%9D%B5%EA%B8%B0%EB%B6%80%EC%9E%90%EC%82%B0">사용수익기부자산</a><a class="tag iss" href="all.html?issue=%EC%9E%90%EB%B3%B8%EC%A0%81+%EC%A7%80%EC%B6%9C">자본적 지출</a><a class="tag iss" href="all.html?issue=%EA%B0%90%EA%B0%80%EC%83%81%EA%B0%81+%EB%B0%A9%EB%B2%95">감가상각 방법</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 건설·부동산업, 운수·물류업</div></div><div class="card">
+<a class="ttl" href="d-prec-342598.html">
+<h2><span class="score s-hi">94</span>해양수산부 국고보조금은 무상으로 받은 자산이어서 이월결손금 보전에 충당 가능 (항소심)</h2>
+<div class="meta">원고가 해양수산부로부터 받은 보조금이 법인세법 제18조 제6호 소정의 무상으로 받은 자산의 가액에 해당하는지 여부 · - · 서울고등법원-2022-누-43384
+ · 2022-11-29 · 납세자승 · 영향도 상</div>
+<div class="sum">중앙회가 해양수산부로부터 받은 국고보조금이 법인세법 제18조 제6호의 &#x27;무상으로 받은 자산의 가액&#x27;에 해당하는지가 다투어진 사안의 항소심. 법원은 그 국고보조금이 해당 조항의 무상 취득 자산에 해당하므로 이월결손금에 보전해 충당함으로써 익금에 산입하지 않을 수 있다고 보아 과세관청의 항소를 기각함.</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EB%B9%84%EC%98%81%EB%A6%AC%EB%B2%95%EC%9D%B8">비영리법인</a><a class="tag ind" href="all.html?industry=%ED%98%91%EB%8F%99%EC%A1%B0%ED%95%A9">협동조합</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EA%B3%A0%EB%B3%B4%EC%A1%B0%EA%B8%88">국고보조금</a><a class="tag iss" href="all.html?issue=%EB%AC%B4%EC%83%81%EC%9C%BC%EB%A1%9C+%EB%B0%9B%EC%9D%80+%EC%9E%90%EC%82%B0">무상으로 받은 자산</a><a class="tag iss" href="all.html?issue=%EC%9D%B4%EC%9B%94%EA%B2%B0%EC%86%90%EA%B8%88+%EB%B3%B4%EC%A0%84">이월결손금 보전</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 비영리·공익법인</div></div><div class="card">
+<a class="ttl" href="d-prec-335998.html">
+<h2><span class="score s-hi">94</span>해양수산부로부터 보전받은 이자비용은 자산수증이익이어서 이월결손금 보전 가능 (제1심)</h2>
+<div class="meta">원고가 발행한 채권의 이자비용을 보전받은 경우, 이월결손금을 보전할 수 있는 자산수증이익에 해당하는지 여부 · - · 서울행정법원-2021-구합-59090
+ · 2022-04-14 · 납세자승 · 영향도 상</div>
+<div class="sum">법인이 발행한 채권의 이자비용을 정부로부터 보전받은 것이 이월결손금을 보전할 수 있는 자산수증이익에 해당하는지가 다투어진 사안의 제1심. 법원은 해양수산부로부터 보전받은 이자비용이 무상으로 받은 자산수증이익에 해당해 이월결손금에 보전할 수 있다고 판단함.</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EB%B9%84%EC%98%81%EB%A6%AC%EB%B2%95%EC%9D%B8">비영리법인</a><a class="tag ind" href="all.html?industry=%ED%98%91%EB%8F%99%EC%A1%B0%ED%95%A9">협동조합</a><a class="tag iss" href="all.html?issue=%EC%9E%90%EC%82%B0%EC%88%98%EC%A6%9D%EC%9D%B4%EC%9D%B5">자산수증이익</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EA%B3%A0%EB%B3%B4%EC%A1%B0%EA%B8%88">국고보조금</a><a class="tag iss" href="all.html?issue=%EC%9D%B4%EC%9B%94%EA%B2%B0%EC%86%90%EA%B8%88+%EB%B3%B4%EC%A0%84">이월결손금 보전</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 비영리·공익법인</div></div><div class="card">
+<a class="ttl" href="d-prec-228493.html">
+<h2><span class="score s-hi">93</span>카드 분담금은 국내 거래분은 사용료, 국외 거래분은 사업소득으로 구분 가능</h2>
+<div class="meta">법인세경정거부처분취소 · 대법원 · 2019두52706
+ · 2022-07-28 · 일부승 · 영향도 상</div>
+<div class="sum">국내사업장이 없는 미국 카드사가 국내 회원사들로부터 발급사분담금과 발급사일일분담금을 받았는데, 회원사들이 이를 상표권 사용 대가인 국내원천소득으로 보아 법인세를 원천징수·납부하자 카드사가 사업소득이어서 국내원천소득이 아니라며 환급을 구하는 경정청구를 하였다가 거부된 사안입니다. 원심은 분담금에 상표권 사용 대가와 포괄적 …</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%8B%A0%EC%9A%A9%EC%B9%B4%EB%93%9C%EC%97%85">신용카드업</a><a class="tag ind" href="all.html?industry=%EC%97%AC%EC%8B%A0%EC%A0%84%EB%AC%B8%EA%B8%88%EC%9C%B5%EC%97%85">여신전문금융업</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EB%82%B4%EC%9B%90%EC%B2%9C%EC%86%8C%EB%93%9D">국내원천소득</a><a class="tag iss" href="all.html?issue=%EC%82%AC%EC%9A%A9%EB%A3%8C%EC%86%8C%EB%93%9D">사용료소득</a><a class="tag iss" href="all.html?issue=%EC%82%AC%EC%97%85%EC%86%8C%EB%93%9D">사업소득</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 금융·보험업, 지주회사·투자업</div></div><div class="card">
+<a class="ttl" href="d-prec-606199.html">
+<h2><span class="score s-hi">92</span>해외에서 공익사업을 하는 비거주 단체도 공익법인이어서 출연재산이 증여세 과세가액에 불산입</h2>
+<div class="meta">증여세부과처분취소[구 「상속세 및 증여세법」(2017. 12. 19. 법률 제15224호로 개정되기 전의 것, 이하 ‘구 상증세법’) 제48조 제1항에서 정한 ‘공익법인 등’에 해당하는지 여부가 문제된 사건] · 대법원 · 2025두30806
+ · 2025-05-15 · 납세자승 · 영향도 상</div>
+<div class="sum">외국에서 종교의 보급 및 교화 사업을 수행하는 외국 비영리단체(비거주자)가 상속세 및 증여세법상 &#x27;공익법인 등&#x27;에 해당하는지가 문제된 사건. 대법원은 조세법률주의와 증여세 납부의무 및 과세가액 불산입 규정 간의 균형을 고려할 때 해외에서 공익사업을 영위하는 비거주 단체도 공익법인 등에 해당하므로 출연받은 재산은 증여세 과…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EC%83%81%EC%86%8D%EC%A6%9D%EC%97%AC%EC%84%B8">상속증여세</a><a class="tag ind" href="all.html?industry=%EB%B9%84%EC%98%81%EB%A6%AC%EB%B2%95%EC%9D%B8">비영리법인</a><a class="tag ind" href="all.html?industry=%EC%A2%85%EA%B5%90%EB%8B%A8%EC%B2%B4">종교단체</a><a class="tag iss" href="all.html?issue=%EA%B3%B5%EC%9D%B5%EB%B2%95%EC%9D%B8">공익법인</a><a class="tag iss" href="all.html?issue=%EB%B9%84%EA%B1%B0%EC%A3%BC+%EB%8B%A8%EC%B2%B4">비거주 단체</a><a class="tag iss" href="all.html?issue=%EC%A6%9D%EC%97%AC%EC%84%B8+%EA%B3%BC%EC%84%B8%EA%B0%80%EC%95%A1+%EB%B6%88%EC%82%B0%EC%9E%85">증여세 과세가액 불산입</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 비영리·공익법인</div></div><div class="card">
+<a class="ttl" href="d-prec-612201.html">
+<h2><span class="score s-hi">92</span>부동산 양도차익도 수익사업 소득이므로 고유목적사업준비금 손금산입한도에 포함해야 함</h2>
+<div class="meta">수익사업에서 발생한 소득금액이 장차 고유목적사업 등에 지출될 가능성이 없다는 이유로 고유목적사업준비금 손금산입한도액에서 제외되어야 한다고 볼 수는 없음 · - · 서울고등법원-2024-누-53873
+ · 2025-04-11 · 납세자승 · 영향도 상</div>
+<div class="sum">비영리법인의 부동산 양도차익이 고유목적사업준비금 손금산입한도액 계산에 포함되는지가 다투어진 사안의 환송심. 법원은 그 양도차익이 해당 사업연도 수익사업에서 발생한 소득금액으로서 구 법인세법 시행령 제56조 제3항의 차감대상에 해당하지 않으므로 구 법인세법 제29조 제1항 제4호의 &#x27;수익사업에서 발생한 소득&#x27;으로서 손금산입…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EB%B9%84%EC%98%81%EB%A6%AC%EB%B2%95%EC%9D%B8">비영리법인</a><a class="tag ind" href="all.html?industry=%EC%9E%AC%EB%8B%A8%C2%B7%EC%82%AC%EB%8B%A8%EB%B2%95%EC%9D%B8">재단·사단법인</a><a class="tag iss" href="all.html?issue=%EA%B3%A0%EC%9C%A0%EB%AA%A9%EC%A0%81%EC%82%AC%EC%97%85%EC%A4%80%EB%B9%84%EA%B8%88">고유목적사업준비금</a><a class="tag iss" href="all.html?issue=%EC%86%90%EA%B8%88%EC%82%B0%EC%9E%85%ED%95%9C%EB%8F%84">손금산입한도</a><a class="tag iss" href="all.html?issue=%EB%B9%84%EC%98%81%EB%A6%AC%EB%B2%95%EC%9D%B8">비영리법인</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 비영리·공익법인</div></div><div class="card">
+<a class="ttl" href="d-prec-599749.html">
+<h2><span class="score s-hi">92</span>알고리즘 전면 재설계·특허 등록한 매매체결 시스템 위탁개발은 과학기술활동 인정</h2>
+<div class="meta">법인세경정거부처분취소[甲 주식회사가 소프트웨어 개발업자에게 ‘매매체결 시스템’의 개발을 위탁하고 지급한 비용이 구 조세특례제한법(2014. 12. 23. 법률 제12853호로 개정되기 전의 것, 이하 ‘구 조특법’)상 연구개발비 세액공제 대상에 해당하는지 여부가 문제된 사건] · 대법원 · 2021두48359
+ · 2024-12-12 · 일부승 · 영향도 상</div>
+<div class="sum">거래소 허가를 받은 회사가 2011~2014년 새로운 매매체결 시스템 개발을 수탁업체에 위탁하고 지급한 137억 원에 대하여 연구·인력개발비 세액공제를 주장한 사안입니다. 대법원은 이 시스템이 대부분의 소프트웨어와 솔루션을 독자적으로 개발한 것이고, 기존 기능의 일부 개선을 넘어 알고리즘을 전면 재설계하였으며, 개발과정에…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EA%B8%88%EC%9C%B5%ED%88%AC%EC%9E%90%EC%97%85">금융투자업</a><a class="tag iss" href="all.html?issue=%EC%97%B0%EA%B5%AC%C2%B7%EC%9D%B8%EB%A0%A5%EA%B0%9C%EB%B0%9C%EB%B9%84+%EC%84%B8%EC%95%A1%EA%B3%B5%EC%A0%9C">연구·인력개발비 세액공제</a><a class="tag iss" href="all.html?issue=%EA%B3%BC%ED%95%99%EA%B8%B0%EC%88%A0%ED%99%9C%EB%8F%99+%EC%9D%B8%EC%A0%95">과학기술활동 인정</a><a class="tag iss" href="all.html?issue=%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98+%EC%9E%AC%EC%84%A4%EA%B3%84">알고리즘 재설계</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업, 정보통신·서비스업, 지주회사·투자업, 금융·보험업</div></div><div class="card">
+<a class="ttl" href="d-prec-234799.html">
+<h2><span class="score s-hi">92</span>최근 3년 내 합병이 있으면 3년 순손익액 가중평균으로 순손익가치를 산정할 수 없다</h2>
+<div class="meta">법인세부과처분등취소 · 대법원 · 2023두32839
+ · 2023-05-18 · 납세자승 · 영향도 상</div>
+<div class="sum">비상장 건설법인이 2015년 1차 합병에 이어 2016년 2차 합병을 하였는데, 과세관청은 2차 합병 시 산정한 주식가액에 1차 합병으로 흡수한 법인의 순손익가치가 반영되지 않아 불공정합병이 되었다며 부당행위계산 부인으로 분여이익을 익금산입하고 법인세·증여세를 부과하였습니다. 대법원은 상증세법 시행규칙 제17조의3 제1항…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EA%B1%B4%EC%84%A4%EC%97%85">건설업</a><a class="tag iss" href="all.html?issue=%EB%B6%88%EA%B3%B5%EC%A0%95%ED%95%A9%EB%B3%91">불공정합병</a><a class="tag iss" href="all.html?issue=%EB%B6%84%EC%97%AC%EC%9D%B4%EC%9D%B5">분여이익</a><a class="tag iss" href="all.html?issue=%EB%B9%84%EC%83%81%EC%9E%A5%EC%A3%BC%EC%8B%9D+%ED%8F%89%EA%B0%80">비상장주식 평가</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 건설·부동산업, 중소·비상장법인, 제조업, 금융·보험업</div></div><div class="card">
+<a class="ttl" href="d-prec-346440.html">
+<h2><span class="score s-hi">92</span>특약매입거래 매출액은 최종소비자 매출이어서 일감몰아주기 과세표준에서 제외 (제1심)</h2>
+<div class="meta">구 상증세 및 증여세법 45조의3 제1항 적용 시 특정매입계약에 따른 매출액을 특수관계법인에 대한 매출액에 포함하는지 여부 · - · 서울행정법원-2021-구합-90145
+ · 2023-01-31 · 납세자승 · 영향도 상</div>
+<div class="sum">구 상증세법 제45조의3 제1항(일감몰아주기 증여의제)을 적용할 때 특정매입계약에 따른 매출액을 특수관계법인에 대한 매출액에 포함해야 하는지가 다투어진 사안의 제1심. 법원은 그 특약매입거래 매출액이 기업회계기준에 의할 때 최종소비자에 대한 매출액이므로 &#x27;특수관계법인에 대한 매출액&#x27;에서 제외된다고 보아 증여세 부과처분을 …</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EC%83%81%EC%86%8D%EC%A6%9D%EC%97%AC%EC%84%B8">상속증여세</a><a class="tag ind" href="all.html?industry=%EC%9C%A0%ED%86%B5%EC%97%85">유통업</a><a class="tag ind" href="all.html?industry=%EB%B0%B1%ED%99%94%EC%A0%90%EC%97%85">백화점업</a><a class="tag iss" href="all.html?issue=%EC%9D%BC%EA%B0%90%EB%AA%B0%EC%95%84%EC%A3%BC%EA%B8%B0">일감몰아주기</a><a class="tag iss" href="all.html?issue=%EC%A6%9D%EC%97%AC%EC%9D%98%EC%A0%9C">증여의제</a><a class="tag iss" href="all.html?issue=%ED%8A%B9%EC%95%BD%EB%A7%A4%EC%9E%85">특약매입</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 도소매·유통업, 지주회사·투자업</div></div><div class="card">
+<a class="ttl" href="d-prec-227725.html">
+<h2><span class="score s-hi">92</span>개발비로 계상하지 않은 인건비에는 즉시상각의제를 적용해 손금을 부인할 수 없다</h2>
+<div class="meta">법인세등부과처분취소 · 대법원 · 2019두58346
+ · 2022-07-28 · 일부승 · 영향도 상</div>
+<div class="sum">농업협동조합중앙회에 대한 여러 처분사유가 다투어진 사건입니다. 대법원은 첫째, 재공제사업 이익금을 재공제이익수수료 명목으로 출자자인 회원조합에 배분한 것은 실질이 잉여금 처분이므로 손금에 산입할 수 없다고 본 원심을 유지하였습니다. 둘째, 62명 채무자에 대한 대출이자 감면액도 회수가능성이 지극히 낮았다고 볼 증거가 부족…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%ED%98%91%EB%8F%99%EC%A1%B0%ED%95%A9%C2%B7%EC%A4%91%EC%95%99%ED%9A%8C">협동조합·중앙회</a><a class="tag iss" href="all.html?issue=%EA%B0%9C%EB%B0%9C%EB%B9%84">개발비</a><a class="tag iss" href="all.html?issue=%EC%A6%89%EC%8B%9C%EC%83%81%EA%B0%81%EC%9D%98%EC%A0%9C">즉시상각의제</a><a class="tag iss" href="all.html?issue=%EA%B0%90%EA%B0%80%EC%83%81%EA%B0%81%EC%9E%90%EC%82%B0">감가상각자산</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 금융·보험업, 정보통신·서비스업, 지주회사·투자업, 비영리·공익법인</div></div><div class="card">
+<a class="ttl" href="d-prec-238401.html">
+<h2><span class="score s-hi">91</span>상표권 사용료를 안 받았다는 사정만으로 부당행위계산 부인 대상이 되지 않는다</h2>
+<div class="meta">법인세부과처분취소 · 대법원 · 2021두30679
+ · 2023-06-01 · 납세자승 · 영향도 상</div>
+<div class="sum">호텔업 법인이 보유한 상표를 계열회사가 사용하도록 하면서 별도 사용료를 받지 않자, 과세관청이 부당행위계산 부인 대상으로 보아 사용자법인의 순매출액에 사용료율을 곱한 금액을 익금산입하여 2008~2012 사업연도 법인세를 경정·고지한 사안입니다. 대법원은 부당행위계산 부인은 경제적 합리성을 무시한 경우에만 적용되고, 상표…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EA%B8%B0%EC%97%85%EC%A7%91%EB%8B%A8+%EC%86%8C%EC%86%8D+%EB%B2%95%EC%9D%B8">기업집단 소속 법인</a><a class="tag iss" href="all.html?issue=%EB%B6%80%EB%8B%B9%ED%96%89%EC%9C%84%EA%B3%84%EC%82%B0+%EB%B6%80%EC%9D%B8">부당행위계산 부인</a><a class="tag iss" href="all.html?issue=%EC%83%81%ED%91%9C%EA%B6%8C+%EC%82%AC%EC%9A%A9%EB%A3%8C">상표권 사용료</a><a class="tag iss" href="all.html?issue=%EA%B2%BD%EC%A0%9C%EC%A0%81+%ED%95%A9%EB%A6%AC%EC%84%B1">경제적 합리성</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 도소매·유통업, 금융·보험업, 지주회사·투자업, 제조업</div></div><div class="card">
+<a class="ttl" href="d-prec-608443.html">
+<h2><span class="score s-hi">90</span>생산성향상시설 직접 대응 건설자금이자·시운전비는 투자세액공제 대상</h2>
+<div class="meta">법인세경정거부처분취소[구 조세특례제한법상 생산성향상시설 투자세액공제 대상 투자금인지 문제된 사건] · 대법원 · 2025두32946
+ · 2025-08-14 · 일부승 · 영향도 상</div>
+<div class="sum">원자력발전소 건설 시 지출한 건설자금이자, 시운전비 등이 구 조세특례제한법 제24조에 따른 생산성향상시설 투자세액공제 대상 투자금액에 포함되는지가 쟁점입니다. 대법원은 조특법상 투자세액공제 대상 투자금액은 생산성향상시설 취득에 직접 대응하여 지출된 비용에 한정된다고 보았습니다. 이에 따라 전체 지출액 중 공제대상인 자동화…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EA%B8%B0%EC%97%90%EC%97%85%2C+%EA%B0%80%EC%8A%A4%2C+%EC%A6%9D%EA%B8%B0+%EB%B0%8F+%EA%B3%B5%EA%B8%B0%EC%A1%B0%EC%A0%88+%EA%B3%B5%EA%B8%89%EC%97%85">전기에업, 가스, 증기 및 공기조절 공급업</a><a class="tag ind" href="all.html?industry=%EC%A0%9C%EC%A1%B0%EC%97%85">제조업</a><a class="tag iss" href="all.html?issue=%EC%83%9D%EC%82%B0%EC%84%B1%ED%96%A5%EC%83%81%EC%8B%9C%EC%84%A4+%ED%88%AC%EC%9E%90%EC%84%B8%EC%95%A1%EA%B3%B5%EC%A0%9C">생산성향상시설 투자세액공제</a><a class="tag iss" href="all.html?issue=%EC%A1%B0%EC%84%B8%ED%8A%B9%EB%A1%80%EC%A0%9C%ED%95%9C%EB%B2%95+%EC%A0%9C24%EC%A1%B0">조세특례제한법 제24조</a><a class="tag iss" href="all.html?issue=%ED%88%AC%EC%9E%90%EC%84%B8%EC%95%A1%EA%B3%B5%EC%A0%9C">투자세액공제</a></div>
+<div class="tags"></div>
+<div class="who">해당 업종군: 제조업</div></div><div class="card">
+<a class="ttl" href="d-prec-606279.html">
+<h2><span class="score s-hi">90</span>양도일에 합리적으로 산정 가능한 비용은 실제 지출 전이라도 토지의 장부가액에 포함해야 함</h2>
+<div class="meta">토지 등 양도소득에 대한 법인세 계산 시 양도일에 신뢰성 있게 측정하거나 합리적으로 산정할 수 있는 비용은 양도 당시의 장부가액에 포함하여야 함 · - · 서울행정법원-2024-구합-85304
+ · 2025-06-05 · 납세자승 · 영향도 상</div>
+<div class="sum">부동산매매·분양·임대업 법인이 토지를 양도한 뒤 토지등 양도소득에 대한 법인세 경정청구를 했다가 거부된 사안. 법원은 양도일 당시 실제 지출 여부와 관계없이 세무상 장부가액을 구성할 수 있는 비용으로서 양도일에 신뢰성 있게 측정하거나 합리적으로 산정할 수 있는 비용은 양도 당시 장부가액에 포함해야 하고, 양도일 이후 지출…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EB%B6%80%EB%8F%99%EC%82%B0+%EA%B0%9C%EB%B0%9C%EC%97%85">부동산 개발업</a><a class="tag ind" href="all.html?industry=%EB%B6%80%EB%8F%99%EC%82%B0%EB%A7%A4%EB%A7%A4%EC%97%85">부동산매매업</a><a class="tag iss" href="all.html?issue=%ED%86%A0%EC%A7%80%EB%93%B1+%EC%96%91%EB%8F%84%EC%86%8C%EB%93%9D+%EC%B6%94%EA%B0%80%EA%B3%BC%EC%84%B8">토지등 양도소득 추가과세</a><a class="tag iss" href="all.html?issue=%EC%9E%A5%EB%B6%80%EA%B0%80%EC%95%A1">장부가액</a><a class="tag iss" href="all.html?issue=%EC%B7%A8%EB%93%9D%EA%B0%80%EC%95%A1">취득가액</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 건설·부동산업</div></div><div class="card">
+<a class="ttl" href="d-prec-240937.html">
+<h2><span class="score s-hi">90</span>증액경정 불복기간을 놓쳐도 5년 경정청구권은 살아 있고 증액사유까지 함께 다툴 수 있다</h2>
+<div class="meta">법인세경정청구거부처분취소소송 · 대법원 · 2021두39997
+ · 2024-06-27 · 납세자승 · 영향도 상</div>
+<div class="sum">자동차부품 제조 내국법인이 중국 자회사로부터 받은 배당금에 간주외국납부세액공제를 적용해 신고하였는데, 과세관청이 이를 부인하며 22억 원을 증액경정하였습니다. 법인은 그 증액경정처분에 대해 불복기간 내에 다투지 않았고, 이후 간주외국납부세액공제가 적용되어야 한다며 당초 신고세액 5억여 원의 환급을 구하는 경정청구를 하였다…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag iss" href="all.html?issue=%EA%B2%BD%EC%A0%95%EC%B2%AD%EA%B5%AC%EA%B6%8C">경정청구권</a><a class="tag iss" href="all.html?issue=%EB%B6%88%EB%B3%B5%EA%B8%B0%EA%B0%84+%EB%8F%84%EA%B3%BC">불복기간 도과</a><a class="tag iss" href="all.html?issue=%EC%A6%9D%EC%95%A1%EA%B2%BD%EC%A0%95%EC%82%AC%EC%9C%A0">증액경정사유</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업, 건설·부동산업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-238791.html">
+<h2><span class="score s-hi">90</span>사업목적이 뚜렷한 우선주 유상감자 대금은 실질과세로 사업양도대금으로 볼 수 없다</h2>
+<div class="meta">법인세부과처분취소 · 대법원 · 2020두37857
+ · 2023-11-30 · 납세자승 · 영향도 상</div>
+<div class="sum">전자회사가 캐나다 법인과 합작투자계약을 맺어 합작법인을 세우고 네트워크 사업부문을 현물출자·사업양도 방식으로 이전한 뒤, 별도로 체결한 우선주약정에 따라 합작법인의 국내 매출이 목표를 달성하자 보유 우선주를 유상감자하여 797억 원을 받은 사안입니다. 법인은 이를 자본감소에 따른 의제배당으로 보아 수입배당금 익금불산입 규…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EC%A0%9C%EC%A1%B0%EC%97%85">제조업</a><a class="tag iss" href="all.html?issue=%EC%8B%A4%EC%A7%88%EA%B3%BC%EC%84%B8+%EC%9B%90%EC%B9%99">실질과세 원칙</a><a class="tag iss" href="all.html?issue=%EC%88%98%EC%9E%85%EB%B0%B0%EB%8B%B9%EA%B8%88+%EC%9D%B5%EA%B8%88%EB%B6%88%EC%82%B0%EC%9E%85">수입배당금 익금불산입</a><a class="tag iss" href="all.html?issue=%EC%9A%B0%EC%84%A0%EC%A3%BC+%EC%9C%A0%EC%83%81%EA%B0%90%EC%9E%90">우선주 유상감자</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업, 지주회사·투자업, 금융·보험업, 건설·부동산업</div></div><div class="card">
+<a class="ttl" href="d-prec-234441.html">
+<h2><span class="score s-hi">90</span>감면 신청 서류 미제출을 이유로 영농조합법인 법인세 면제를 거부할 수 없다</h2>
+<div class="meta">법인세부과처분취소 · 대법원 · 2019두55972
+ · 2023-03-30 · 납세자승 · 영향도 상</div>
+<div class="sum">영농조합법인이 2015·2016 사업연도 법인세를 신고하며 구 조세특례제한법 제66조의 식량작물재배업소득 등에 대한 법인세 면제를 신청하였으나, 과세관청은 시행령 제63조 제7항이 정한 &#x27;농업경영체 등록확인서&#x27;를 제출하지 않았다는 이유로 면제를 거부하고 법인세를 경정·고지하였습니다. 대법원은 구 조특법 제66조 제1항이 …</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EB%86%8D%EC%97%85">농업</a><a class="tag ind" href="all.html?industry=%EC%B6%95%EC%82%B0%EC%97%85">축산업</a><a class="tag iss" href="all.html?issue=%EC%A1%B0%EC%84%B8%EA%B0%90%EB%A9%B4+%EC%8B%A0%EC%B2%AD+%EC%A0%88%EC%B0%A8">조세감면 신청 절차</a><a class="tag iss" href="all.html?issue=%ED%98%91%EB%A0%A5%EC%9D%98%EB%AC%B4">협력의무</a><a class="tag iss" href="all.html?issue=%EC%98%81%EB%86%8D%EC%A1%B0%ED%95%A9%EB%B2%95%EC%9D%B8">영농조합법인</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업</div></div><div class="card">
+<a class="ttl" href="d-prec-237137.html">
+<h2><span class="score s-hi">90</span>[상고심에서 유지됨] 3년 내 합병 시 순손익 가중평균 산정을 배척한 항소심</h2>
+<div class="meta">법인세부과처분등취소 · 대전고등법원 · 2022누11246
+ · 2023-01-12 · 납세자승 · 영향도 상</div>
+<div class="sum">비상장 건설법인이 2015년 1차 합병에 이어 2016년 2차 합병을 하였는데, 과세관청이 2차 합병 시 1차 합병으로 흡수한 법인의 순손익가치를 합산하지 않아 주가가 과소평가되었고 그 결과 불공정합병으로 분여이익이 발생했다며 법인세 2억 3천만 원, 소득금액변동통지, 증여세 1억 6천만 원을 부과한 사안의 항소심입니다.…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EA%B1%B4%EC%84%A4%EC%97%85">건설업</a><a class="tag iss" href="all.html?issue=%EB%B6%88%EA%B3%B5%EC%A0%95%ED%95%A9%EB%B3%91">불공정합병</a><a class="tag iss" href="all.html?issue=%EB%B9%84%EC%83%81%EC%9E%A5%EC%A3%BC%EC%8B%9D+%ED%8F%89%EA%B0%80">비상장주식 평가</a><a class="tag iss" href="all.html?issue=%EC%88%9C%EC%86%90%EC%9D%B5%EA%B0%80%EC%B9%98">순손익가치</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 건설·부동산업, 중소·비상장법인, 제조업, 금융·보험업</div></div><div class="card">
+<a class="ttl" href="d-prec-342856.html">
+<h2><span class="score s-hi">90</span>이자소득만 있는 비영리법인 신고서식으로 신고했어도 과세표준 신고를 한 것이어서 무신고가 아님</h2>
+<div class="meta">법인세법 시행규칙 별지 제56호의 이자소득만 있는 비영리법인 신고용 서식으로 신고한 법인세 신고가 무신고에 해당하는지 · - · 서울행정법원-2021-구합-78909
+ · 2022-05-27 · 납세자승 · 영향도 상</div>
+<div class="sum">사단법인이 법인세법 시행규칙 별지 제56호(이자소득만 있는 비영리법인 신고용) 서식으로 법인세를 신고한 것이 무신고에 해당하는지가 다투어진 사안. 법원은 그 서식으로 법인세를 신고한 것은 구 법인세법 제60조 제1항에 따라 과세표준을 신고한 것에 해당하므로 신고 자체를 하지 않았다고 볼 수 없다며 법인세 약 14억 원(가…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EB%B9%84%EC%98%81%EB%A6%AC%EB%B2%95%EC%9D%B8">비영리법인</a><a class="tag ind" href="all.html?industry=%EC%9E%AC%EB%8B%A8%C2%B7%EC%82%AC%EB%8B%A8%EB%B2%95%EC%9D%B8">재단·사단법인</a><a class="tag iss" href="all.html?issue=%EB%AC%B4%EC%8B%A0%EA%B3%A0%EA%B0%80%EC%82%B0%EC%84%B8">무신고가산세</a><a class="tag iss" href="all.html?issue=%EC%8B%A0%EA%B3%A0%EC%84%9C%EC%8B%9D">신고서식</a><a class="tag iss" href="all.html?issue=%EB%B9%84%EC%98%81%EB%A6%AC%EB%B2%95%EC%9D%B8">비영리법인</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 비영리·공익법인</div></div><div class="card">
+<a class="ttl" href="d-prec-217777.html">
+<h2><span class="score s-hi">89</span>통화선도·스왑 평가손익은 거래손익과 통산 — 손비 요건 미충족 증명책임은 과세관청</h2>
+<div class="meta">교육세및법인세부과처분취소청구 · 대법원 · 2017두68813
+ · 2021-09-16 · 일부승 · 영향도 상</div>
+<div class="sum">외국은행 국내영업소가 통화선도·스왑 평가손익을 거래손익과 합산해 교육세 과세표준에 반영하였는데, 과세관청이 평가이익만 과세표준에 포함해야 한다며 교육세를 경정·고지하고, 은행 퇴직자들과 체결한 컨설팅계약의 용역비가 손금 요건을 갖추지 못했다며 손금산입을 부인한 사안입니다. 대법원은 교육세법 시행령의 개정 경위와 문언·체계…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EA%B8%88%EC%9C%B5%C2%B7%EB%B3%B4%ED%97%98%EC%97%85">금융·보험업</a><a class="tag ind" href="all.html?industry=%EC%99%B8%EA%B5%AD%EC%9D%80%ED%96%89+%EA%B5%AD%EB%82%B4%EC%A7%80%EC%A0%90">외국은행 국내지점</a><a class="tag iss" href="all.html?issue=%EA%B5%90%EC%9C%A1%EC%84%B8+%EA%B3%BC%EC%84%B8%ED%91%9C%EC%A4%80">교육세 과세표준</a><a class="tag iss" href="all.html?issue=%ED%86%B5%ED%99%94%EC%84%A0%EB%8F%84%C2%B7%EC%8A%A4%EC%99%91+%ED%8F%89%EA%B0%80%EC%86%90%EC%9D%B5">통화선도·스왑 평가손익</a><a class="tag iss" href="all.html?issue=%EC%86%90%EC%9D%B5+%ED%86%B5%EC%82%B0">손익 통산</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 금융·보험업, 지주회사·투자업</div></div><div class="card">
+<a class="ttl" href="d-prec-619789.html">
+<h2><span class="score s-hi">88</span>해외카드사 발급사일일분담금은 고정사업장 없는 사업소득이라 원천징수 대상이 아님</h2>
+<div class="meta">(심리불속행) 해외카드사에 지급한 분담금 중 발급사일일분담금 부분에 관한 법인세 원천세율 그로스업 상당액은 부가가치세 과세표준에서 제외되어야 함 · - · 대법원-2025-두-1
+ · 2025-07-03 · 일부승 · 영향도 상</div>
+<div class="sum">신용카드사가 해외카드사에 지급한 분담금 중 발급사일일분담금 부분의 성격이 다투어진 사안. 원심은 그 분담금이 국외 사용 신용카드와 관련해 해외카드사가 시스템을 통해 제공한 포괄적 역무의 대가로서 전부 사업소득에 해당하고, 사업소득은 국내에 고정사업장이 없는 한 법인세 과세대상도 원천징수 대상도 아니므로 그에 관한 법인세 …</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B6%80%EA%B0%80%EA%B0%80%EC%B9%98%EC%84%B8">부가가치세</a><a class="tag ind" href="all.html?industry=%EC%B9%B4%EB%93%9C%EC%97%85">카드업</a><a class="tag ind" href="all.html?industry=%EC%9D%80%ED%96%89%EC%97%85">은행업</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EB%82%B4%EC%9B%90%EC%B2%9C%EC%86%8C%EB%93%9D">국내원천소득</a><a class="tag iss" href="all.html?issue=%EC%82%AC%EC%97%85%EC%86%8C%EB%93%9D">사업소득</a><a class="tag iss" href="all.html?issue=%EC%82%AC%EC%9A%A9%EB%A3%8C%EC%86%8C%EB%93%9D">사용료소득</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 금융·보험업</div></div><div class="card">
+<a class="ttl" href="d-prec-346252.html">
+<h2><span class="score s-hi">88</span>2014년 개정 상증세법 시행령 제31조 제6항이 무효여서 주식가액 증가분 산정 근거가 없음</h2>
+<div class="meta">2014년 개정 후 상증세법 시행령 제31조 제6항은 모법인 상증세법 제41조의 규정 취지에 반할 뿐만 아니라 그 위임범위를 벗어난 것이어서 무효에 해당함 · - · 서울고등법원-2018-누-64773
+ · 2022-01-21 · 일부승 · 영향도 상</div>
+<div class="sum">특정법인과의 거래를 통한 이익의 증여와 관련해 주식가액 증가분 산정방법을 정한 2014년 개정 후 상증세법 시행령 제31조 제6항의 효력이 다투어진 사안의 항소심. 법원은 그 조항이 모법인 상증세법 제41조의 규정 취지에 반할 뿐 아니라 위임범위를 벗어난 것이어서 무효이고, 그 결과 특정법인 주주 등이 보유한 주식가액 증…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EC%83%81%EC%86%8D%EC%A6%9D%EC%97%AC%EC%84%B8">상속증여세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EB%B9%84%EC%83%81%EC%9E%A5+%EC%A4%91%EC%86%8C%EA%B8%B0%EC%97%85">비상장 중소기업</a><a class="tag iss" href="all.html?issue=%ED%8A%B9%EC%A0%95%EB%B2%95%EC%9D%B8%EA%B3%BC%EC%9D%98+%EA%B1%B0%EB%9E%98">특정법인과의 거래</a><a class="tag iss" href="all.html?issue=%EC%A6%9D%EC%97%AC%EC%9D%98%EC%A0%9C">증여의제</a><a class="tag iss" href="all.html?issue=%EC%9C%84%EC%9E%84%EC%9E%85%EB%B2%95+%ED%95%9C%EA%B3%84">위임입법 한계</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 중소·비상장법인, 제조업, 건설·부동산업, 금융·보험업</div></div><div class="card">
+<a class="ttl" href="d-prec-242313.html">
+<h2><span class="score s-hi">87</span>암호화자산 거래차익은 구 법인세법·소득세법상 국내원천소득에 해당하지 않음</h2>
+<div class="meta">암호화자산 거래차익은 구 소득세법 제119조 제12호 마목 또는 타목, 구 법인세법 제93조 제10호 바목 또는 카목에서 정한 국내원천소득에 해당하지 아니함 · - · 서울고등법원-2024-누-50584
+ · 2025-01-17 · 납세자승 · 영향도 상</div>
+<div class="sum">가상자산 거래 관련 법인이 비거주자·외국법인에게 지급한 암호화자산 거래차익에 대해 기타소득세와 법인(원천)세 징수처분을 받은 사안. 항소심은 암호화자산 거래차익이 구 소득세법 제119조 제12호 마목·타목이나 구 법인세법 제93조 제10호 바목·카목에서 정한 국내원천소득에 해당하지 않으므로 이와 다른 전제의 처분은 위법하…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EA%B0%80%EC%83%81%EC%9E%90%EC%82%B0+%EA%B1%B0%EB%9E%98%EC%97%85">가상자산 거래업</a><a class="tag ind" href="all.html?industry=%EB%B8%94%EB%A1%9D%EC%B2%B4%EC%9D%B8%EC%97%85">블록체인업</a><a class="tag iss" href="all.html?issue=%EC%95%94%ED%98%B8%ED%99%94%EC%9E%90%EC%82%B0">암호화자산</a><a class="tag iss" href="all.html?issue=%EA%B0%80%EC%83%81%EC%9E%90%EC%82%B0">가상자산</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EB%82%B4%EC%9B%90%EC%B2%9C%EC%86%8C%EB%93%9D">국내원천소득</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 금융·보험업, 정보통신·서비스업</div></div><div class="card">
+<a class="ttl" href="d-prec-608091.html">
+<h2><span class="score s-hi">87</span>국내에 등록되지 않은 특허권의 사용료는 국내원천소득으로 볼 수 없음</h2>
+<div class="meta">이 사건 특허권 사용료는 법인세법에 따른 국내원천소득에 해당하지 않음 · - · 서울행정법원-2023-구합-52246
+ · 2024-06-11 · 납세자승 · 영향도 상</div>
+<div class="sum">내국법인이 미국법인에게 지급한 특허권 사용료에 대해 원천징수한 법인세의 환급을 구하는 경정청구가 거부된 사안. 법원은 미국법인이 특허권을 국외에서만 등록하고 국내에는 등록하지 않은 경우 그와 관련해 지급받는 소득은 그 사용의 대가가 될 수 없으므로 국내원천소득으로 볼 수 없다며, 사용료 중 국내 미등록 특허권에 대한 부분…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%9C%EC%A1%B0%EC%97%85">제조업</a><a class="tag ind" href="all.html?industry=%EB%B0%98%EB%8F%84%EC%B2%B4%C2%B7%EC%A0%84%EC%9E%90%EC%97%85">반도체·전자업</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EB%82%B4%EC%9B%90%EC%B2%9C%EC%86%8C%EB%93%9D">국내원천소득</a><a class="tag iss" href="all.html?issue=%ED%8A%B9%ED%97%88%EA%B6%8C+%EC%82%AC%EC%9A%A9%EB%A3%8C">특허권 사용료</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EB%82%B4+%EB%AF%B8%EB%93%B1%EB%A1%9D+%ED%8A%B9%ED%97%88">국내 미등록 특허</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업, 정보통신·서비스업, 지주회사·투자업, 해외진출·외국계법인</div></div><div class="card">
+<a class="ttl" href="d-prec-345674.html">
+<h2><span class="score s-hi">87</span>수입배당금 익금불산입은 이익잉여금 외 재원의 배당을 배제하지 않음</h2>
+<div class="meta">법인세등부과처분취소 · - · 대법원-2022-두-62925
+ · 2023-02-23 · 납세자승 · 영향도 상</div>
+<div class="sum">수입배당금 익금불산입 규정이 이익잉여금 이외의 재원으로 지급된 배당에도 적용되는지가 다투어진 사안. 법원은 그 규정이 이익잉여금 이외의 배당금을 재원으로 하는 경우를 배제하도록 규정하고 있지 않고, 설령 사채발행대금으로 배당금을 지급한 경우 그 규정이 적용되지 않는다고 보더라도 원고에게 지급된 유상감자 대가의 재원이 사채…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A7%80%EC%A3%BC%ED%9A%8C%EC%82%AC">지주회사</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag iss" href="all.html?issue=%EC%88%98%EC%9E%85%EB%B0%B0%EB%8B%B9%EA%B8%88+%EC%9D%B5%EA%B8%88%EB%B6%88%EC%82%B0%EC%9E%85">수입배당금 익금불산입</a><a class="tag iss" href="all.html?issue=%EC%9C%A0%EC%83%81%EA%B0%90%EC%9E%90">유상감자</a><a class="tag iss" href="all.html?issue=%EC%9D%98%EC%A0%9C%EB%B0%B0%EB%8B%B9">의제배당</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 지주회사·투자업, 제조업, 건설·부동산업, 금융·보험업</div></div><div class="card">
+<a class="ttl" href="d-prec-618359.html">
+<h2><span class="score s-hi">86</span>근거 규정 없이 실질과세만으로 상위법인 주식 양도를 국내주식 거래로 재구성해 과세할 수 없음</h2>
+<div class="meta">이 사건 양도소득은 구 법인세법 상‘국내원천소득’에 해당하지 않고, 이 사건 주식은 구 증권거래세법 상‘주권’이 아니며, 이 사건 거래에 구 국제조세조정법 제2조의2를 적용하여 과세하는 것은 조세법률주의 원칙상 허용될 수 없다. · - · 광주고등법원(제주)-2025-누-1053
+ · 2025-12-10 · 납세자승 · 영향도 상</div>
+<div class="sum">다단계 지배구조를 통해 내국법인을 실질적으로 지배하던 자가 상위법인 주식을 양도한 데 대해 과세관청이 법인세 징수처분과 증권거래세 부과처분을 한 사안. 항소심은 주식 거래에 관한 구체적 과세 근거 규정이 없는 이상 실질과세 일반조항만으로 내국법인 보유 주식의 거래로 재구성해 과세할 수 없다고 보아 과세관청의 항소를 기각함…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%99%B8%EA%B5%AD%EA%B3%84+%ED%88%AC%EC%9E%90%EB%B2%95%EC%9D%B8">외국계 투자법인</a><a class="tag ind" href="all.html?industry=%EC%A7%80%EC%A3%BC%ED%9A%8C%EC%82%AC">지주회사</a><a class="tag iss" href="all.html?issue=%EC%8B%A4%EC%A7%88%EA%B3%BC%EC%84%B8">실질과세</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EB%82%B4%EC%9B%90%EC%B2%9C%EC%86%8C%EB%93%9D">국내원천소득</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EC%A0%9C%EC%A1%B0%EC%84%B8">국제조세</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 지주회사·투자업</div></div><div class="card">
+<a class="ttl" href="d-prec-344378.html">
+<h2><span class="score s-hi">86</span>부칙상 적용시점 규정에 따라 개정 전 출연 주식에는 강화된 성실공익법인 요건이 적용되지 않음</h2>
+<div class="meta">이 사건 주식에 대하여는 2008년 개정 상증세법 시행령 제42조, 제13조 제3항, 제5항에서 규정하는 강화된 성실공익법인 요건을 적용할 수 없음 · - · 대전지방법원-2021-구합-104589
+ · 2022-10-20 · 납세자승 · 영향도 상</div>
+<div class="sum">학교법인이 보유한 주식에 2008년 개정 상증세법 시행령의 강화된 성실공익법인 요건을 적용할 수 있는지가 다투어진 사안. 법원은 시행령 부칙이 &#x27;제42조 개정규정은 이 영 시행 후 최초로 공익법인에 주식을 출연하거나 공익법인 등이 주식을 취득하는 분부터 적용한다&#x27;고 규정하고 있으므로 이 사건 주식에는 강화된 요건을 적용할…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EC%83%81%EC%86%8D%EC%A6%9D%EC%97%AC%EC%84%B8">상속증여세</a><a class="tag ind" href="all.html?industry=%EA%B3%B5%EC%9D%B5%EB%B2%95%EC%9D%B8">공익법인</a><a class="tag ind" href="all.html?industry=%ED%95%99%EA%B5%90%EB%B2%95%EC%9D%B8">학교법인</a><a class="tag iss" href="all.html?issue=%EA%B3%B5%EC%9D%B5%EB%B2%95%EC%9D%B8">공익법인</a><a class="tag iss" href="all.html?issue=%EC%84%B1%EC%8B%A4%EA%B3%B5%EC%9D%B5%EB%B2%95%EC%9D%B8">성실공익법인</a><a class="tag iss" href="all.html?issue=%EC%A3%BC%EC%8B%9D+%EC%B6%9C%EC%97%B0">주식 출연</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 비영리·공익법인</div></div><div class="card">
+<a class="ttl" href="d-prec-347658.html">
+<h2><span class="score s-hi">86</span>조세조약상 경정청구 특례(3년)가 국세기본법의 5년 경정청구기간을 배제하지 않음</h2>
+<div class="meta">구 법인세법 제98조의6 제4항이 구 국세기본법 제45조의2에 대한 특례규정으로 볼 수 없음 · - · 서울고등법원-2021-누-43745
+ · 2022-07-14 · 납세자승 · 영향도 상</div>
+<div class="sum">외국법인에 대한 원천징수분 법인세의 경정청구기간이 다투어진 사안의 항소심. 법원은 구 법인세법 제98조의6 제4항이 구 국세기본법 제45조의2에 대한 특례규정에 해당해 2012. 7. 1.부터의 원천징수분에 관해 구 법인세법에 따른 3년의 경정청구기간만이 적용된다고 할 수는 없다고 보아 과세관청의 항소를 모두 기각함.</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EC%99%B8%EA%B5%AD%EA%B3%84+%ED%88%AC%EC%9E%90%EB%B2%95%EC%9D%B8">외국계 투자법인</a><a class="tag iss" href="all.html?issue=%EA%B2%BD%EC%A0%95%EC%B2%AD%EA%B5%AC%EA%B8%B0%EA%B0%84">경정청구기간</a><a class="tag iss" href="all.html?issue=%EC%A1%B0%EC%84%B8%EC%A1%B0%EC%95%BD">조세조약</a><a class="tag iss" href="all.html?issue=%EC%9B%90%EC%B2%9C%EC%A7%95%EC%88%98">원천징수</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 금융·보험업, 지주회사·투자업, 해외진출·외국계법인, 제조업</div></div><div class="card">
+<a class="ttl" href="d-prec-219697.html">
+<h2><span class="score s-hi">86</span>국내 미등록 특허 사용료는 국내원천소득이 아니나 노하우 등 비공개 정보 대가는 국내원천소득</h2>
+<div class="meta">원천징수법인세환급거부처분취소청구의소 · 대법원 · 2018두36592
+ · 2022-02-10 · 일부승 · 영향도 상</div>
+<div class="sum">미국 연구기관이 국내 전자회사와 소프트웨어 등 제공 대가로 무선기기당 일정액을 받기로 한 계약을 체결하고, 전자회사가 원천징수한 법인세의 환급을 구하는 경정청구를 하였다가 거부된 사안입니다. 대법원은 먼저 국내 미등록 특허권에 대한 사용료는 조세조약이 국내법에 우선하고 한미조세협약상 특허권 속지주의에 따라 국내원천소득이 …</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EC%A0%9C%EC%A1%B0%EC%97%85">제조업</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EB%82%B4%EC%9B%90%EC%B2%9C%EC%86%8C%EB%93%9D">국내원천소득</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EB%82%B4+%EB%AF%B8%EB%93%B1%EB%A1%9D+%ED%8A%B9%ED%97%88%EA%B6%8C">국내 미등록 특허권</a><a class="tag iss" href="all.html?issue=%EB%85%B8%ED%95%98%EC%9A%B0">노하우</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업, 정보통신·서비스업, 건설·부동산업, 금융·보험업</div></div><div class="card">
+<a class="ttl" href="d-prec-623807.html">
+<h2><span class="score s-hi">85</span>미환류소득 환급세액 통산 시 추가납부세액 없으면 과소신고가산세 위법</h2>
+<div class="meta">미환류소득과 각 사업연도 소득의 법인세를 통산하여 가산세를 계상하는지 여부 · - · 서울행정법원-2025-구합-54743
+ · 2026-06-12 · 납세자승 · 영향도 중</div>
+<div class="sum">각 사업연도 소득 법인세 추징세액과 미환류소득 법인세 과다납부에 따른 환급세액이 함께 존재할 때 과소신고가산세 부과 여부가 쟁점이 된 사건입니다. 법원은 법인세법상 납부세액 계산 시 각 사업연도 소득 법인세와 미환류소득 법인세의 통산이 예정되어 있다고 보았습니다. 따라서 미환류소득 환급세액을 반영하여 최종적으로 추가 납부…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag iss" href="all.html?issue=%EA%B3%BC%EC%86%8C%EC%8B%A0%EA%B3%A0%EA%B0%80%EC%82%B0%EC%84%B8">과소신고가산세</a><a class="tag iss" href="all.html?issue=%EB%AF%B8%ED%99%98%EB%A5%98%EC%86%8C%EB%93%9D">미환류소득</a><a class="tag iss" href="all.html?issue=%ED%88%AC%EC%9E%90%EC%83%81%EC%83%9D%ED%98%91%EB%A0%A5%EC%B4%89%EC%A7%84%EC%84%B8%EC%A0%9C">투자상생협력촉진세제</a></div>
+<div class="tags"></div>
+<div class="who">해당 업종군: 제조업, 건설·부동산업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-616705.html">
+<h2><span class="score s-hi">85</span>협력업체 직원 등에 대한 제품 할인판매 차액은 접대비가 아닌 매출에누리에 해당</h2>
+<div class="meta">법인세부과처분취소 · 대법원 · 2025두34772
+ · 2026-02-12 · 납세자승 · 영향도 중</div>
+<div class="sum">법인이 직원매장에서 협력업체, 파견업체, 계열사 직원 등에게 일정한 할인가격으로 제품을 판매한 사안입니다. 과세관청은 최종소비자가격과 실제판매가격의 차액(할인액)을 접대비로 보아 한도초과액을 손금불산입하였으나, 대법원은 해당 할인판매가 거래관계 원활 목적의 접대라기보다 판매촉진 및 브랜드 인지도 향상 등 경영판단에 따른 …</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag iss" href="all.html?issue=%EC%A0%91%EB%8C%80%EB%B9%84">접대비</a><a class="tag iss" href="all.html?issue=%EA%B8%B0%EC%97%85%EC%97%85%EB%AC%B4%EC%B6%94%EC%A7%84%EB%B9%84">기업업무추진비</a><a class="tag iss" href="all.html?issue=%EB%A7%A4%EC%B6%9C%EC%97%90%EB%88%84%EB%A6%AC">매출에누리</a></div>
+<div class="tags"></div>
+<div class="who">해당 업종군: 제조업, 건설·부동산업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-608659.html">
+<h2><span class="score s-hi">85</span>증여일을 잘못 보아 개정 법령을 적용한 증여세 부과처분은 하자가 중대명백하여 무효</h2>
+<div class="meta">법인세법상 무수익자산의 매입이 구 상증세법 제45조의5 과세대상이 되는 금전의 무상대여에 해당하는지 및 해당한다면 증여일이 언제인지 · - · 서울행정법원-2024-구합-67108
+ · 2025-06-26 · 납세자승 · 영향도 상</div>
+<div class="sum">특수관계인이 특정법인에 무수익자산인 골프회원권을 매입하게 한 거래를 부당행위계산부인으로 재구성해 금전의 무상대여로 보고 증여세를 부과한 사안. 법원은 그 재구성 자체는 정당하나 증여일은 거래를 한 날, 즉 매입거래일이므로 2010년·2013년 당시 상증세법이 적용되어야 하는데 2015년 개정 상증세법을 적용한 처분은 잘못…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EC%83%81%EC%86%8D%EC%A6%9D%EC%97%AC%EC%84%B8">상속증여세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EB%B9%84%EC%83%81%EC%9E%A5+%EC%A4%91%EC%86%8C%EA%B8%B0%EC%97%85">비상장 중소기업</a><a class="tag iss" href="all.html?issue=%ED%8A%B9%EC%A0%95%EB%B2%95%EC%9D%B8%EA%B3%BC%EC%9D%98+%EA%B1%B0%EB%9E%98">특정법인과의 거래</a><a class="tag iss" href="all.html?issue=%EC%A6%9D%EC%97%AC%EC%9D%98%EC%A0%9C">증여의제</a><a class="tag iss" href="all.html?issue=%EB%AC%B4%EC%88%98%EC%9D%B5%EC%9E%90%EC%82%B0">무수익자산</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 중소·비상장법인, 제조업, 건설·부동산업, 금융·보험업</div></div><div class="card">
+<a class="ttl" href="d-prec-624769.html">
+<h2><span class="score s-hi">85</span>외국법인 등의 암호화자산 거래차익은 국내원천소득 제외</h2>
+<div class="meta">암호화자산 거래차익은 구 소득세법 제119조 제12호 마목 또는 타목, 구 법인세법 제93조 제10호 바목 또는 카목에서 정한 국내원천소득에 해당하지 아니함 · - · 서울행정법원-2023-구합-72387
+ · 2024-06-13 · 납세자승 · 영향도 중</div>
+<div class="sum">가상자산 거래소를 운영하는 내국법인이 비거주자 및 외국법인의 가상자산 거래차익에 대해 원천징수를 하지 않았다는 이유로 법인세(원천징수분) 등을 부과받은 사건입니다. 법원은 분산원장 기반의 가상자산은 물리적·장소적으로 국내에 소재하는 자산으로 볼 수 없으며, 열거주의를 취하는 구 법인세법 및 구 소득세법상 과세대상으로 명시…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EA%B0%80%EC%83%81%EC%9E%90%EC%82%B0+%EB%A7%A4%EB%A7%A4+%EB%B0%8F+%EC%A4%91%EA%B0%9C%EC%97%85">가상자산 매매 및 중개업</a><a class="tag ind" href="all.html?industry=%EA%B8%B0%ED%83%80+%EA%B8%88%EC%9C%B5+%ED%88%AC%EC%9E%90%EC%97%85">기타 금융 투자업</a><a class="tag iss" href="all.html?issue=%EC%99%B8%EA%B5%AD%EB%B2%95%EC%9D%B8+%EA%B5%AD%EB%82%B4%EC%9B%90%EC%B2%9C%EC%86%8C%EB%93%9D">외국법인 국내원천소득</a><a class="tag iss" href="all.html?issue=%EA%B0%80%EC%83%81%EC%9E%90%EC%82%B0+%EA%B1%B0%EB%9E%98%EC%B0%A8%EC%9D%B5">가상자산 거래차익</a><a class="tag iss" href="all.html?issue=%EC%9B%90%EC%B2%9C%EC%A7%95%EC%88%98%EC%9D%98%EB%AC%B4">원천징수의무</a></div>
+<div class="tags"></div>
+<div class="who">해당 업종군: 금융·보험업, 정보통신·서비스업, 지주회사·투자업</div></div><div class="card">
+<a class="ttl" href="d-prec-349162.html">
+<h2><span class="score s-hi">85</span>주주 법인의 의사결정에 영향력을 행사했다는 증거가 없으면 특수관계인이 아님 (항소심)</h2>
+<div class="meta">대손확정 당시 법인세법 상 특수관계에 해당하는지 여부 · - · 서울고등법원(춘천)-2022-누-1284
+ · 2024-05-29 · 납세자승 · 영향도 상</div>
+<div class="sum">대손 확정 당시 채무법인이 원고의 법인세법상 특수관계인에 해당하는지가 다투어진 사안의 항소심. 법원은 원고가 그 주주인 법인의 의사결정 등에 영향력을 행사해야 채무법인이 특수관계인에 해당하는데 이를 인정할 만한 증거가 없다고 판단함(판결유형: 국패).</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EB%B9%84%EC%83%81%EC%9E%A5+%EC%A4%91%EC%86%8C%EA%B8%B0%EC%97%85">비상장 중소기업</a><a class="tag iss" href="all.html?issue=%ED%8A%B9%EC%88%98%EA%B4%80%EA%B3%84%EC%9D%B8">특수관계인</a><a class="tag iss" href="all.html?issue=%EB%8C%80%EC%86%90%EA%B8%88">대손금</a><a class="tag iss" href="all.html?issue=%EC%86%90%EA%B8%88%EC%82%B0%EC%9E%85">손금산입</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 중소·비상장법인, 제조업, 건설·부동산업, 금융·보험업</div></div><div class="card">
+<a class="ttl" href="d-prec-618643.html">
+<h2><span class="score s-hi">84</span>실질과세 일반조항만으로 다단계 지배구조 상위법인 주식 양도를 국내주식 거래로 재구성해 과세할 수 없음</h2>
+<div class="meta">(심리불속행) 이 사건 양도소득은 구 법인세법 상‘국내원천소득’에 해당하지 않고, 이 사건 주식은 구 증권거래세법 상‘주권’이 아니며, 이 사건 거래에 구 국제조세조정법 제2조의2를 적용하여 과세하는 것은 조세법률주의 원칙상 허용될 수 없다. · - · 대법원-2026-두-30033
+ · 2026-04-02 · 납세자승 · 영향도 상</div>
+<div class="sum">다단계 지배구조를 통해 실질적으로 내국법인을 지배하던 자가 그 상위법인의 주식을 양도한 것에 대해, 과세관청이 실질과세 원칙을 근거로 내국법인 주식 거래로 재구성해 법인세(국내원천소득)와 증권거래세를 과세한 사안. 원심은 구체적인 과세 근거 규정이 마련되지 않는 한 실질과세 일반조항만으로 거래를 재구성해 과세할 수 없다고…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%99%B8%EA%B5%AD%EA%B3%84+%ED%88%AC%EC%9E%90%EB%B2%95%EC%9D%B8">외국계 투자법인</a><a class="tag ind" href="all.html?industry=%EC%A7%80%EC%A3%BC%ED%9A%8C%EC%82%AC">지주회사</a><a class="tag iss" href="all.html?issue=%EC%8B%A4%EC%A7%88%EA%B3%BC%EC%84%B8">실질과세</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EB%82%B4%EC%9B%90%EC%B2%9C%EC%86%8C%EB%93%9D">국내원천소득</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EC%A0%9C%EC%A1%B0%EC%84%B8">국제조세</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 지주회사·투자업</div></div><div class="card">
+<a class="ttl" href="d-prec-240663.html">
+<h2><span class="score s-hi">84</span>원감정가액이 있고 재감정 사유가 없으면 과세관청의 소급 재감정가액은 시가가 아니다</h2>
+<div class="meta">법인세부과처분등취소청구 · 대법원 · 2020두54265
+ · 2024-04-12 · 납세자승 · 영향도 상</div>
+<div class="sum">리조트 회사 두 곳을 흡수합병하면서 상증세법상 보충적 평가방법으로 주식 가치를 산정해 합병비율을 정한 사안입니다. 합병 당시 두 곳의 감정평가법인이 평가한 부동산 감정가액(원감정가액)의 평균액을 시가로 삼았는데, 세무조사에서 서울지방국세청장이 재산평가심의위원회 자문을 거쳐 평가기간이 지난 뒤 소급 재감정을 의뢰하고 그 가…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EB%A6%AC%EC%A1%B0%ED%8A%B8%C2%B7%EB%A0%88%EC%A0%80%EC%97%85">리조트·레저업</a><a class="tag iss" href="all.html?issue=%EC%86%8C%EA%B8%89%EA%B0%90%EC%A0%95">소급감정</a><a class="tag iss" href="all.html?issue=%EC%9B%90%EA%B0%90%EC%A0%95%EA%B0%80%EC%95%A1">원감정가액</a><a class="tag iss" href="all.html?issue=%EC%9E%AC%EA%B0%90%EC%A0%95+%EC%82%AC%EC%9C%A0">재감정 사유</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 건설·부동산업, 제조업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-350868.html">
+<h2><span class="score s-hi">83</span>주주 법인의 의사결정에 영향력을 행사했다는 증거가 없으면 특수관계인이 아님</h2>
+<div class="meta">(심리불속행)대손확정 당시 법인세법 상 특수관계인 해당 여부 · - · 대법원-2024-두-46255
+ · 2024-10-08 · 납세자승 · 영향도 상</div>
+<div class="sum">대손 확정 당시 채무법인이 원고의 법인세법상 특수관계인에 해당하는지가 다투어진 사안. 원심은 원고가 그 주주인 법인의 의사결정 등에 영향력을 행사해야 채무법인이 특수관계인에 해당하는데 이를 인정할 증거가 없다고 보았고, 대법원은 과세관청의 상고를 모두 기각함(상고비용 피고들 부담).</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EB%B9%84%EC%83%81%EC%9E%A5+%EC%A4%91%EC%86%8C%EA%B8%B0%EC%97%85">비상장 중소기업</a><a class="tag iss" href="all.html?issue=%ED%8A%B9%EC%88%98%EA%B4%80%EA%B3%84%EC%9D%B8">특수관계인</a><a class="tag iss" href="all.html?issue=%EB%8C%80%EC%86%90%EA%B8%88">대손금</a><a class="tag iss" href="all.html?issue=%EC%86%90%EA%B8%88%EC%82%B0%EC%9E%85">손금산입</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 중소·비상장법인, 제조업, 건설·부동산업, 금융·보험업</div></div><div class="card">
+<a class="ttl" href="d-prec-234697.html">
+<h2><span class="score s-hi">83</span>기간과세 원칙상 해당 사업연도 요건만 갖추면 준비금 적립액은 손금산입 대상</h2>
+<div class="meta">법인세부과처분취소등 · 대법원 · 2018두62928
+ · 2023-04-27 · 납세자승 · 영향도 상</div>
+<div class="sum">신용협동조합중앙회가 공제규정에 따라 2000~2006 사업연도에 계약자배당준비금 217억 원을 적립했다가, 2007년 개정 공제규정 부칙에 따라 이를 환입해 계약자이익배당준비금으로 계상하고, 이후 2009~2011 사업연도에 다시 환입해 계약자배당준비금으로 적립하며 손금에 산입한 사안입니다. 과세관청은 과거 적립액의 환입…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EB%B3%B4%ED%97%98%EC%97%85">보험업</a><a class="tag ind" href="all.html?industry=%EA%B3%B5%EC%A0%9C%EC%82%AC%EC%97%85">공제사업</a><a class="tag iss" href="all.html?issue=%EA%B8%B0%EA%B0%84%EA%B3%BC%EC%84%B8+%EC%9B%90%EC%B9%99">기간과세 원칙</a><a class="tag iss" href="all.html?issue=%EC%B1%85%EC%9E%84%EC%A4%80%EB%B9%84%EA%B8%88">책임준비금</a><a class="tag iss" href="all.html?issue=%EA%B3%84%EC%95%BD%EC%9E%90%EB%B0%B0%EB%8B%B9%EC%A4%80%EB%B9%84%EA%B8%88">계약자배당준비금</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 금융·보험업, 지주회사·투자업, 비영리·공익법인</div></div><div class="card">
+<a class="ttl" href="d-prec-347994.html">
+<h2><span class="score s-hi">83</span>공신력 있는 기관이 객관적·합리적으로 평가했다면 소급감정가액도 법인세법상 시가로 인정</h2>
+<div class="meta">상표권 소급감정가액이 법인세법상 시가에 해당하는지 여부 · - · 서울행정법원-2021-구합-68056
+ · 2023-03-23 · 납세자승 · 영향도 상</div>
+<div class="sum">상표권 거래와 관련해 소급감정에 의한 감정가액을 법인세법상 시가로 볼 수 있는지가 다투어진 사안. 법원은 공신력 있는 감정기관에서 객관적이고 합리적인 방법으로 평가한 것이라 볼 수 있다면 소급감정에 의한 감정가격이라도 이를 &#x27;시가&#x27;로 볼 수 있으므로 소급감정이라는 이유만으로 감정 결과를 함부로 배척할 수 없다며, 2014…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EB%B9%84%EC%83%81%EC%9E%A5+%EC%A4%91%EC%86%8C%EA%B8%B0%EC%97%85">비상장 중소기업</a><a class="tag iss" href="all.html?issue=%EC%8B%9C%EA%B0%80">시가</a><a class="tag iss" href="all.html?issue=%EC%86%8C%EA%B8%89%EA%B0%90%EC%A0%95">소급감정</a><a class="tag iss" href="all.html?issue=%EA%B0%90%EC%A0%95%ED%8F%89%EA%B0%80">감정평가</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 중소·비상장법인, 지주회사·투자업, 제조업, 건설·부동산업</div></div><div class="card">
+<a class="ttl" href="d-prec-219315.html">
+<h2><span class="score s-hi">82</span>차입금으로 조성한 시설은 준공과 동시에 공사 소유 — 감가상각 대상이며 회수지연 전제도 성립하지 않는다</h2>
+<div class="meta">법인세등부과처분취소 · 대법원 · 2017두36045
+ · 2022-01-27 · 납세자승 · 영향도 상</div>
+<div class="sum">국가가 전액 출자한 공항공사가 공항 내 복합교통센터를 건설하면서 지하층에 공항철도 역사를 설치하고 그 감가상각비를 손금산입해 왔는데, 과세관청이 철도역사가 공사 소유가 아니어서 감가상각 대상이 아니라며 손금불산입하고, 국가로부터 받아야 할 건설비 회수를 정당한 사유 없이 지연시켰다며 업무무관 가지급금으로 보아 지급이자를 …</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EA%B3%B5%EA%B3%B5%EA%B8%B0%EA%B4%80">공공기관</a><a class="tag ind" href="all.html?industry=%EC%82%AC%ED%9A%8C%EA%B8%B0%EB%B0%98%EC%8B%9C%EC%84%A4+%EC%9A%B4%EC%98%81">사회기반시설 운영</a><a class="tag iss" href="all.html?issue=%EC%86%8C%EC%9C%A0%EA%B6%8C+%EA%B7%80%EC%86%8D">소유권 귀속</a><a class="tag iss" href="all.html?issue=%EA%B0%90%EA%B0%80%EC%83%81%EA%B0%81+%EB%8C%80%EC%83%81+%EC%9E%90%EC%82%B0">감가상각 대상 자산</a><a class="tag iss" href="all.html?issue=%EC%97%85%EB%AC%B4%EB%AC%B4%EA%B4%80+%EA%B0%80%EC%A7%80%EA%B8%89%EA%B8%88">업무무관 가지급금</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 건설·부동산업, 운수·물류업, 비영리·공익법인</div></div><div class="card">
+<a class="ttl" href="d-prec-607111.html">
+<h2><span class="score s-hi">81</span>시가대로 자기주식을 사서 소각했다면 자본거래이므로 감자차익은 익금산입 대상이 아님</h2>
+<div class="meta">시가대로 자기주식을 매입하여 소각한 경우라고 하더라도 자본거래로 발생한 감자차익은 익금산입대상이 아님 · - · 서울행정법원-2024-구합-62509
+ · 2025-06-27 · 납세자승 · 영향도 상</div>
+<div class="sum">법인이 일부 주주로부터 자기주식을 매입해 소각한 거래를 과세관청이 자산거래(주식 양도)로 보아 법인세를 부과한 사안. 법원은 주식 매도가 자산거래인 주식양도인지 자본거래인 주식소각·자본환급인지는 계약서의 내용이나 형식만이 아니라 당사자의 의사, 계약 체결 경위, 대금 결정 방법, 거래 경과 등 전체 과정을 실질적으로 파악…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EB%B9%84%EC%83%81%EC%9E%A5+%EC%A4%91%EC%86%8C%EA%B8%B0%EC%97%85">비상장 중소기업</a><a class="tag iss" href="all.html?issue=%EC%9E%90%EA%B8%B0%EC%A3%BC%EC%8B%9D">자기주식</a><a class="tag iss" href="all.html?issue=%EC%A3%BC%EC%8B%9D%EC%86%8C%EA%B0%81">주식소각</a><a class="tag iss" href="all.html?issue=%EA%B0%90%EC%9E%90%EC%B0%A8%EC%9D%B5">감자차익</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 중소·비상장법인, 제조업, 건설·부동산업, 금융·보험업</div></div><div class="card">
+<a class="ttl" href="d-prec-342436.html">
+<h2><span class="score s-hi">81</span>차명계좌에서 매입처로 송금한 금액은 누락 매출에 대응하는 매입비용이어서 손금 인정</h2>
+<div class="meta">원고가 차명계좌에서 매입처 계좌로 송금한 금액은 누락된 매출에 관한 매입비용 및 부대비용에 해당하여, 손금으로 인정됨 · - · 부산지방법원-2020-구합-25794
+ · 2022-01-20 · 납세자승 · 영향도 상</div>
+<div class="sum">텔레마케팅 판매 법인이 매출을 차명계좌로 받아 신고를 누락한 데 대해 과세관청이 매출만 익금에 산입하고 대응하는 매입비용은 인정하지 않은 사안. 법원은 원고가 주문내역을 매입처에 전송하고 매입처가 배송을 의뢰하는 구조로 영업했고 차명계좌로 받은 매출 중 불복금액 상당을 매입처로 송금했으며 매입장 합계액이 불복금액과 일치하…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EB%8F%84%EC%86%8C%EB%A7%A4%EC%97%85">도소매업</a><a class="tag ind" href="all.html?industry=%ED%86%B5%EC%8B%A0%ED%8C%90%EB%A7%A4%EC%97%85">통신판매업</a><a class="tag iss" href="all.html?issue=%EB%A7%A4%EC%B6%9C%EB%88%84%EB%9D%BD">매출누락</a><a class="tag iss" href="all.html?issue=%EB%8C%80%EC%9D%91+%EC%86%90%EA%B8%88">대응 손금</a><a class="tag iss" href="all.html?issue=%EC%B0%A8%EB%AA%85%EA%B3%84%EC%A2%8C">차명계좌</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 도소매·유통업, 제조업, 건설·부동산업, 금융·보험업</div></div><div class="card">
+<a class="ttl" href="d-prec-347102.html">
+<h2><span class="score s-hi">80</span>실제 공급받은 자가 아닌 자에게 계산서를 발급한 경우는 미발급 가산세(2%) 대상이 아님</h2>
+<div class="meta">‘재화 또는 용역을 공급한 자가 실제로 공급받은 자가 아닌 자에게 계산서를 발급한 경우’에는 구 법인세법 제76조 제9항 제4호 가목(미발급, 2%)의 가산세 대상에 해당하지 않음 · - · 대법원-2022-두-65436
+ · 2023-03-16 · 납세자승 · 영향도 중</div>
+<div class="sum">농업회사법인이 계산서 관련 가산세를 부과받은 사안. 법원은 &#x27;재화 또는 용역을 공급한 자가 실제로 공급받은 자가 아닌 자에게 계산서를 발급한 경우&#x27;는 구 법인세법 제76조 제9항 제4호 가목(미발급, 2%)의 가산세 대상에 해당하지 않는다고 보았고, 대법원은 과세관청의 상고를 기각함(상고비용 피고 부담).</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EB%86%8D%EC%97%85">농업</a><a class="tag ind" href="all.html?industry=%EB%8F%84%EC%86%8C%EB%A7%A4%EC%97%85">도소매업</a><a class="tag iss" href="all.html?issue=%EA%B3%84%EC%82%B0%EC%84%9C+%EA%B0%80%EC%82%B0%EC%84%B8">계산서 가산세</a><a class="tag iss" href="all.html?issue=%EB%AF%B8%EB%B0%9C%EA%B8%89+%EA%B0%80%EC%82%B0%EC%84%B8">미발급 가산세</a><a class="tag iss" href="all.html?issue=%EB%B6%80%EC%8B%A4%EA%B8%B0%EC%9E%AC">부실기재</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 도소매·유통업, 제조업, 건설·부동산업, 금융·보험업</div></div><div class="card">
+<a class="ttl" href="d-prec-346824.html">
+<h2><span class="score s-hi">80</span>실제 공급받은 자가 아닌 자에게 계산서를 발급한 경우는 미발급 가산세(2%) 대상이 아님 (항소심)</h2>
+<div class="meta">‘재화 또는 용역을 공급한 자가 실제로 공급받은 자가 아닌 자에게 계산서를 발급한 경우’에는 구 법인세법 제76조 제9항 제4호 가목(미발급, 2%)의 가산세 대상에 해당하지 않음 · - · 서울고등법원(춘천)-2022-누-106
+ · 2022-10-19 · 납세자승 · 영향도 중</div>
+<div class="sum">계산서 관련 가산세 부과가 다투어진 사안의 항소심. 법원은 &#x27;재화 또는 용역을 공급한 자가 실제로 공급받은 자가 아닌 자에게 계산서를 발급한 경우&#x27;는 구 법인세법 제76조 제9항 제4호 가목(미발급, 2%)의 가산세 대상에 해당하지 않는다고 보아 과세관청의 항소를 기각함.</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EB%86%8D%EC%97%85">농업</a><a class="tag ind" href="all.html?industry=%EB%8F%84%EC%86%8C%EB%A7%A4%EC%97%85">도소매업</a><a class="tag iss" href="all.html?issue=%EA%B3%84%EC%82%B0%EC%84%9C+%EA%B0%80%EC%82%B0%EC%84%B8">계산서 가산세</a><a class="tag iss" href="all.html?issue=%EB%AF%B8%EB%B0%9C%EA%B8%89+%EA%B0%80%EC%82%B0%EC%84%B8">미발급 가산세</a><a class="tag iss" href="all.html?issue=%EB%B6%80%EC%8B%A4%EA%B8%B0%EC%9E%AC">부실기재</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 도소매·유통업, 제조업, 건설·부동산업, 금융·보험업</div></div><div class="card">
+<a class="ttl" href="d-prec-349760.html">
+<h2><span class="score s-hi">80</span>특수관계인 아닌 자에 대한 채무보증 구상채권은 소멸시효 완성 사업연도의 대손금으로 인정</h2>
+<div class="meta">원고가 대위변제한 금액이 사업중단으로 발생한 손실금인지, 채무보증의 이행으로 인한 구상채권인지 여부 및 2012사업연도 구상채권이라 하더라도 소멸시효가 완성된 2017사업연도의 대손금으로 볼 수 있는지 여부 · - · 대법원-2022-두-46343
+ · 2022-10-19 · 일부승 · 영향도 상</div>
+<div class="sum">법인이 대위변제한 금액이 사업중단으로 발생한 손실금인지 채무보증 이행으로 인한 구상채권인지, 그리고 구상채권이라면 소멸시효가 완성된 사업연도의 대손금으로 볼 수 있는지가 다투어진 사안. 대법원은 원고가 지출액과 동액 상당의 구상채권을 취득했으므로 그 지출액을 지출 사업연도의 손금으로 볼 수 없지만, 그 구상채권은 특수관계…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EA%B1%B4%EC%84%A4%EC%97%85">건설업</a><a class="tag iss" href="all.html?issue=%EB%8C%80%EC%86%90%EA%B8%88">대손금</a><a class="tag iss" href="all.html?issue=%EC%B1%84%EB%AC%B4%EB%B3%B4%EC%A6%9D+%EA%B5%AC%EC%83%81%EC%B1%84%EA%B6%8C">채무보증 구상채권</a><a class="tag iss" href="all.html?issue=%EC%86%8C%EB%A9%B8%EC%8B%9C%ED%9A%A8">소멸시효</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업, 건설·부동산업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-338090.html">
+<h2><span class="score s-hi">80</span>특수관계인 아닌 자에 대한 채무보증 구상채권은 소멸시효 완성 사업연도의 대손금 (항소심)</h2>
+<div class="meta">원고가 대위변제한 금액이 사업중단으로 발생한 손실금인지, 채무보증의 이행으로 인한 구상채권인지 여부 및 2012사업연도 구상채권이라 하더라도 소멸시효가 완성된 2017사업연도의 대손금으로 볼 수 있는지 여부 · - · 서울고등법원-2021-누-42322
+ · 2022-05-27 · 일부승 · 영향도 상</div>
+<div class="sum">법인이 대위변제한 금액이 사업중단 손실금인지 채무보증 이행에 따른 구상채권인지, 그리고 소멸시효가 완성된 사업연도의 대손금으로 볼 수 있는지가 다투어진 사안의 항소심. 법원은 원고가 지출액과 동액의 구상채권을 취득했으므로 지출 사업연도의 손금으로 볼 수 없지만, 그 구상채권은 특수관계인이 아닌 자에 대한 채무보증으로 발생…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EA%B1%B4%EC%84%A4%EC%97%85">건설업</a><a class="tag iss" href="all.html?issue=%EB%8C%80%EC%86%90%EA%B8%88">대손금</a><a class="tag iss" href="all.html?issue=%EC%B1%84%EB%AC%B4%EB%B3%B4%EC%A6%9D+%EA%B5%AC%EC%83%81%EC%B1%84%EA%B6%8C">채무보증 구상채권</a><a class="tag iss" href="all.html?issue=%EC%86%8C%EB%A9%B8%EC%8B%9C%ED%9A%A8">소멸시효</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업, 건설·부동산업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-613919.html">
+<h2><span class="score s-mid">79</span>가집행선고부 승소판결로 실제 수령한 보상금은 그 수령 사업연도의 익금으로 확정됨</h2>
+<div class="meta">(국패 파기환송심) 수급자가 가집행선고부 승소판결에 의하여 지급자로부터 실제로 금전을 수령하였다면, 법인세법상 소득의 실현가능성은 상당히 높은 정도로 성숙 확정됨 · - · 서울고등법원-2024-누-68868
+ · 2025-06-12 · 납세자승 · 영향도 상</div>
+<div class="sum">법인이 수용보상금을 가집행선고부 승소판결에 따라 2010년에 수령했는데 과세관청이 2014 사업연도 익금으로 보아 법인세를 부과한 사안의 파기환송심. 법원은 수급자가 가집행선고부 승소판결에 의해 지급자로부터 실제로 금전을 수령했다면 법인세법상 소득의 실현가능성이 상당히 높은 정도로 성숙·확정되므로 2010 사업연도의 익금…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EB%B6%80%EB%8F%99%EC%82%B0+%EA%B0%9C%EB%B0%9C%EC%97%85">부동산 개발업</a><a class="tag ind" href="all.html?industry=%EA%B1%B4%EC%84%A4%EC%97%85">건설업</a><a class="tag iss" href="all.html?issue=%EC%9D%B5%EA%B8%88+%EA%B7%80%EC%86%8D%EC%8B%9C%EA%B8%B0">익금 귀속시기</a><a class="tag iss" href="all.html?issue=%EA%B6%8C%EB%A6%AC%ED%99%95%EC%A0%95%EC%A3%BC%EC%9D%98">권리확정주의</a><a class="tag iss" href="all.html?issue=%EA%B0%80%EC%A7%91%ED%96%89%EC%84%A0%EA%B3%A0">가집행선고</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 건설·부동산업, 제조업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-344534.html">
+<h2><span class="score s-mid">79</span>국세청 사전답변에 반하는 처분은 신의성실원칙 위반이고 의제배당금은 교육세 수익금액이 아님</h2>
+<div class="meta">상표 사용료 미수취는 부당행위계산부인 등에 해당하고, 국세청 사전답변에 반하는 처분은 신의성실원칙에 위반되며, 의제배당금은 교육세법상 수익금액에 해당하지 않음 · - · 서울행정법원-2020-구합-60413
+ · 2023-03-10 · 일부승 · 영향도 상</div>
+<div class="sum">여러 쟁점이 함께 다투어진 대형 사건. 법원은 직원 사고금의 화해금은 순자산 감소가 없어 지급시기에 손금산입할 수 없고 통상성·수익관련성을 결여한 중재금도 손금으로 인정되지 않지만, 구속력 있는 조치요구에 따라 환급한 금액은 손금으로 인정되고, 상표 사용료 미수취는 부당행위계산부인 등에 해당하며, 증권거래세 처분은 정당하…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EA%B8%88%EC%9C%B5%EC%97%85">금융업</a><a class="tag ind" href="all.html?industry=%EC%A7%80%EC%A3%BC%ED%9A%8C%EC%82%AC">지주회사</a><a class="tag iss" href="all.html?issue=%EC%8B%A0%EC%9D%98%EC%84%B1%EC%8B%A4%EC%9B%90%EC%B9%99">신의성실원칙</a><a class="tag iss" href="all.html?issue=%EC%82%AC%EC%A0%84%EB%8B%B5%EB%B3%80">사전답변</a><a class="tag iss" href="all.html?issue=%EC%83%81%ED%91%9C%EA%B6%8C+%EC%82%AC%EC%9A%A9%EB%A3%8C">상표권 사용료</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 금융·보험업, 지주회사·투자업, 제조업, 건설·부동산업</div></div><div class="card">
+<a class="ttl" href="d-prec-342822.html">
+<h2><span class="score s-mid">79</span>감사 급여를 이익 분여로 단정할 수 없고 업무 관련 지출은 접대비여서 손금불산입은 위법</h2>
+<div class="meta">급여 및 접대비 손금불산입 판단요건 · - · 부산고등법원-2022-누-21061
+ · 2023-01-18 · 납세자승 · 영향도 상</div>
+<div class="sum">법인이 감사에게 지급한 급여와 접대비의 손금성이 다투어진 사안의 항소심. 법원은 그 급여가 감사로서의 직무집행에 대한 정상적인 대가라기보다 주로 법인에 유보된 이익을 분여하기 위해 대외적으로 보수의 형식을 취한 것에 불과하다고 단정하기 어렵고, 접대비는 원고가 직접 또는 간접적으로 업무와 관련이 있는 자와 업무를 원활하게…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EB%B9%84%EC%83%81%EC%9E%A5+%EC%A4%91%EC%86%8C%EA%B8%B0%EC%97%85">비상장 중소기업</a><a class="tag iss" href="all.html?issue=%EC%9E%84%EC%9B%90+%EB%B3%B4%EC%88%98">임원 보수</a><a class="tag iss" href="all.html?issue=%EA%B0%90%EC%82%AC+%EA%B8%89%EC%97%AC">감사 급여</a><a class="tag iss" href="all.html?issue=%EC%9D%B4%EC%9D%B5%EC%B2%98%EB%B6%84">이익처분</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 중소·비상장법인, 제조업, 건설·부동산업, 금융·보험업</div></div><div class="card">
+<a class="ttl" href="d-prec-241975.html">
+<h2><span class="score s-mid">78</span>가집행선고부 승소판결로 실제 수령했다면 그 사업연도에 익금 귀속</h2>
+<div class="meta">법인세부과처분취소[법인세법상 가집행선고부 승소판결에 따라 지급받은 수용보상금의 익금 귀속시기가 문제된 사건] · 대법원 · 2022두47629
+ · 2024-11-20 · 납세자승 · 영향도 중</div>
+<div class="sum">원고가 수용보상금 증액청구 소송에서 2010년 가집행선고부 승소판결을 받아 서울특별시가 공탁한 97억 원을 2010. 7. 19. 이의를 유보하고 수령하였고, 이후 상소를 거쳐 2015년에 판결이 확정되자 원고는 증액분 전액을 2015 사업연도 익금에 산입해 신고하였습니다. 과세관청은 선행 대법원판결이 선고된 2014년에…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EB%B6%80%EB%8F%99%EC%82%B0%EC%97%85">부동산업</a><a class="tag iss" href="all.html?issue=%EC%9D%B5%EA%B8%88+%EA%B7%80%EC%86%8D%EC%8B%9C%EA%B8%B0">익금 귀속시기</a><a class="tag iss" href="all.html?issue=%EA%B6%8C%EB%A6%AC%ED%99%95%EC%A0%95%EC%A3%BC%EC%9D%98">권리확정주의</a><a class="tag iss" href="all.html?issue=%EA%B0%80%EC%A7%91%ED%96%89%EC%84%A0%EA%B3%A0%EB%B6%80+%ED%8C%90%EA%B2%B0">가집행선고부 판결</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업, 건설·부동산업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-605045.html">
+<h2><span class="score s-mid">78</span>[항소심에서 대부분 유지됨] 후순위차입금 이자율과 시스템 대체비용 상각을 모두 인정한 1심</h2>
+<div class="meta">법인세부과처분취소 · 인천지방법원 · 2020구합51994
+ · 2022-01-20 · 납세자승 · 영향도 상</div>
+<div class="sum">민간투자법에 따라 공항고속도로를 건설해 국가에 기부채납하고 30년 관리운영권을 설정받은 법인이, 출자사로부터 연 13.5%로 차입한 후순위차입금 지급이자를 손금산입하고 시스템 대체비용을 기계장치로 보아 내용연수 6년 정률법으로 상각한 사안입니다. 과세관청은 후순위차입금 이자율의 시가를 당좌대출이자율 4.6%로 보아 초과분…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EB%AF%BC%EA%B0%84%ED%88%AC%EC%9E%90%EC%82%AC%EC%97%85%28BTO%29+%EC%8B%9C%ED%96%89%EB%B2%95%EC%9D%B8">민간투자사업(BTO) 시행법인</a><a class="tag ind" href="all.html?industry=%EC%9C%A0%EB%A3%8C%EB%8F%84%EB%A1%9C+%EC%9A%B4%EC%98%81">유료도로 운영</a><a class="tag iss" href="all.html?issue=%ED%9B%84%EC%88%9C%EC%9C%84%EC%B0%A8%EC%9E%85%EA%B8%88+%EC%9D%B4%EC%9E%90%EC%9C%A8">후순위차입금 이자율</a><a class="tag iss" href="all.html?issue=%EB%B6%80%EB%8B%B9%ED%96%89%EC%9C%84%EA%B3%84%EC%82%B0+%EB%B6%80%EC%9D%B8">부당행위계산 부인</a><a class="tag iss" href="all.html?issue=%EC%9C%84%ED%97%98+%ED%94%84%EB%A6%AC%EB%AF%B8%EC%97%84">위험 프리미엄</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 건설·부동산업, 금융·보험업, 운수·물류업, 지주회사·투자업</div></div><div class="card">
+<a class="ttl" href="d-prec-621331.html">
+<h2><span class="score s-mid">77</span>국외 모회사에 지급한 그룹 공통 IT 서비스 수수료는 손금으로 인정되나 경영지원 수수료는 부인</h2>
+<div class="meta">IT공통서비스 수수료 중 타국 관계사 관련 비용과 관리지원용역 수수료의 국조법상 용역거래의 손금 해당 여부 · - · 수원지방법원-2024-구합-68386
+ · 2026-06-18 · 일부승 · 영향도 중</div>
+<div class="sum">미국 모회사가 100% 간접 보유한 창고형 할인매장 운영 법인이 그룹 IT 공통서비스 계약과 경영지원 용역 계약에 따라 국외특수관계인에게 지급한 수수료를 손금산입했다가 부인당한 사안. 법원은 IT 수수료 관련 용역은 구 국제조세조정법 시행령 제6조의2 제1항 제2호의 요건을 충족한다고 보아 그 부분 법인세 부과처분과 이전…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EB%8F%84%EC%86%8C%EB%A7%A4%EC%97%85">도소매업</a><a class="tag ind" href="all.html?industry=%EC%9C%A0%ED%86%B5%EC%97%85">유통업</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EC%A0%9C%EC%A1%B0%EC%84%B8">국제조세</a><a class="tag iss" href="all.html?issue=%EC%9A%A9%EC%97%AD%EA%B1%B0%EB%9E%98">용역거래</a><a class="tag iss" href="all.html?issue=%EC%A0%95%EC%83%81%EA%B0%80%EA%B2%A9">정상가격</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 도소매·유통업, 지주회사·투자업, 해외진출·외국계법인</div></div><div class="card">
+<a class="ttl" href="d-prec-614751.html">
+<h2><span class="score s-mid">77</span>회계에서 누락된 공사비도 실제 지출이 인정되면 손금으로 산입할 수 있음</h2>
+<div class="meta">손금산입 인정여부 · - · 제주지방법원-2023-구합-6476
+ · 2025-08-12 · 납세자승 · 영향도 중</div>
+<div class="sum">부동산 임대·국내 여행업 법인이 건물 신축 공사대금 중 회계에서 누락된 공사비를 손금에 산입해 달라며 2021 사업연도 법인세 경정청구를 했다가 거부된 사안. 법원은 회계누락 공사비의 손금산입이 인정된다고 보아 경정거부처분을 취소함.</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EB%B6%80%EB%8F%99%EC%82%B0+%EC%9E%84%EB%8C%80%EC%97%85">부동산 임대업</a><a class="tag ind" href="all.html?industry=%EC%88%99%EB%B0%95%C2%B7%EC%97%AC%ED%96%89%EC%97%85">숙박·여행업</a><a class="tag iss" href="all.html?issue=%ED%9A%8C%EA%B3%84%EB%88%84%EB%9D%BD">회계누락</a><a class="tag iss" href="all.html?issue=%EA%B3%B5%EC%82%AC%EB%B9%84">공사비</a><a class="tag iss" href="all.html?issue=%EC%86%90%EA%B8%88%EC%82%B0%EC%9E%85">손금산입</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 건설·부동산업, 제조업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-342804.html">
+<h2><span class="score s-mid">77</span>보험업법 위반 지출도 사회질서 위반 정도가 중하지 않으면 손금에 산입할 수 있음</h2>
+<div class="meta">보험업법을 위반하여 지출한 비용이 법인세법상 손금에 해당하는지 여부 및 지급명세서 제출 불성실가산세를 중복과세로 볼 수 있는지 여부 · - · 서울고등법원-2022-누-38139
+ · 2022-12-09 · 일부승 · 영향도 상</div>
+<div class="sum">보험업법을 위반해 지출한 비용이 손금에 해당하는지와 지급명세서 제출 불성실가산세가 중복과세인지가 다투어진 사안의 항소심. 법원은 그 지출의 사회적 비난가능성과 위법성의 정도가 중하다고 볼 수 없고 구 보험업법의 입법 취지를 중대하게 훼손할 정도에 이른다고 단정하기 어려우며, 의약품 리베이트·성매매 수당·담합 사례금 등 대…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EB%B3%B4%ED%97%98%EC%97%85">보험업</a><a class="tag ind" href="all.html?industry=%EB%B3%B4%ED%97%98%EB%8C%80%EB%A6%AC%EC%A0%90">보험대리점</a><a class="tag iss" href="all.html?issue=%EC%9C%84%EB%B2%95%EB%B9%84%EC%9A%A9">위법비용</a><a class="tag iss" href="all.html?issue=%EB%B3%B4%ED%97%98%EC%97%85%EB%B2%95+%EC%9C%84%EB%B0%98">보험업법 위반</a><a class="tag iss" href="all.html?issue=%EC%86%90%EA%B8%88%EC%82%B0%EC%9E%85">손금산입</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 금융·보험업, 제조업, 건설·부동산업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-343612.html">
+<h2><span class="score s-mid">77</span>구 상증세법 시행령 제26조 제9항은 특수관계 있는 개인과 법인 사이의 거래에만 적용됨</h2>
+<div class="meta">법인과 특수 관계 없는 개인과의 거래에 대하여 구 상증세법 시행령 제26조 제9항을 적용할 수 없음 · - · 서울고등법원-2022-누-36942
+ · 2022-08-24 · 납세자승 · 영향도 중</div>
+<div class="sum">법인과 특수관계 없는 개인 사이의 거래에 구 상증세법 시행령 제26조 제9항을 적용할 수 있는지가 다투어진 사안의 항소심. 법원은 그 조항이 특수관계 있는 개인과 법인 간에 재산을 양수·양도한 경우에 적용된다고 해석함이 타당하다고 판단함.</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EC%83%81%EC%86%8D%EC%A6%9D%EC%97%AC%EC%84%B8">상속증여세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EB%B9%84%EC%83%81%EC%9E%A5+%EC%A4%91%EC%86%8C%EA%B8%B0%EC%97%85">비상장 중소기업</a><a class="tag iss" href="all.html?issue=%EC%A0%80%EA%B0%80%EC%96%91%EC%88%98+%EA%B3%A0%EA%B0%80%EC%96%91%EB%8F%84">저가양수 고가양도</a><a class="tag iss" href="all.html?issue=%EC%A6%9D%EC%97%AC%EC%9D%98%EC%A0%9C">증여의제</a><a class="tag iss" href="all.html?issue=%ED%8A%B9%EC%88%98%EA%B4%80%EA%B3%84%EC%9D%B8">특수관계인</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 중소·비상장법인, 제조업, 건설·부동산업, 금융·보험업</div></div><div class="card">
+<a class="ttl" href="d-prec-343968.html">
+<h2><span class="score s-mid">76</span>법인세 포탈로 고발했어도 소득금액변동통지 관련 포탈까지 고발한 것은 아니고 부정행위는 조세수입 감소 인식이 필요</h2>
+<div class="meta">법인세 포탈에 관하여 조세범 처벌법 위반으로 ‘고발 또는 통고처분’을 하였더라도 소득처분에 따른 소득금액변동통지 관련 조세포탈에 대해서까지 ‘고발 또는 통고처분’을 한 것으로 볼 수는 있는지 여부 · - · 대구고등법원-2021-누-3579
+ · 2022-02-11 · 일부승 · 영향도 상</div>
+<div class="sum">법인세 포탈에 관해 조세범 처벌법 위반으로 고발 또는 통고처분을 했더라도 소득처분에 따른 소득금액변동통지 관련 조세포탈까지 고발한 것으로 볼 수 있는지, 그리고 허위 세금계산서에 의한 매입세액 공제가 &#x27;사기 기타 부정행위&#x27;에 해당해 10년 부과제척기간이 적용되는지가 다투어진 사안. 법원은 법인세 포탈 고발이 소득금액변동통…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EA%B1%B4%EC%84%A4%EC%97%85">건설업</a><a class="tag iss" href="all.html?issue=%EB%B6%80%EA%B3%BC%EC%A0%9C%EC%B2%99%EA%B8%B0%EA%B0%84">부과제척기간</a><a class="tag iss" href="all.html?issue=%EB%B6%80%EC%A0%95%ED%96%89%EC%9C%84">부정행위</a><a class="tag iss" href="all.html?issue=%EC%A1%B0%EC%84%B8%ED%8F%AC%ED%83%88+%EA%B3%A0%EB%B0%9C">조세포탈 고발</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 건설·부동산업, 도소매·유통업, 제조업, 금융·보험업</div></div><div class="card">
+<a class="ttl" href="d-prec-345142.html">
+<h2><span class="score s-mid">76</span>부도 후 6개월 전이라도 일부 회수를 위해 나머지 채권을 포기했다면 대손금으로 인정</h2>
+<div class="meta">부도발생일로부터 6개월 이상 지난 어음상의 채권을 그 부도발생일로부터 6개월 이상 경과 하기 전 일부 채권의 회수를 위해 나머지 채권을 포기한다면, 해당 어음상의 채권을 부가가치세법상 대손금으로 인정해야 함 · - · 의정부지방법원-2020-구합-12495
+ · 2021-11-02 · 납세자승 · 영향도 중</div>
+<div class="sum">부도발생일부터 6개월이 지나기 전에 채권 일부의 회수를 위해 나머지 채권을 포기한 경우 그 어음상 채권을 대손금으로 인정할 수 있는지가 다투어진 사안. 법원은 구 법인세법 시행령 제19조의2 제1항 제9호가 부도발생일부터 6개월 이상 지난 어음상 채권의 회수 가능성이 낮아 대손금으로 인정하는 취지를 고려하면, 특수관계인이…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B6%80%EA%B0%80%EA%B0%80%EC%B9%98%EC%84%B8">부가가치세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EB%8F%84%EC%86%8C%EB%A7%A4%EC%97%85">도소매업</a><a class="tag iss" href="all.html?issue=%EB%8C%80%EC%86%90%EA%B8%88">대손금</a><a class="tag iss" href="all.html?issue=%EB%B6%80%EB%8F%84%EC%96%B4%EC%9D%8C">부도어음</a><a class="tag iss" href="all.html?issue=%EC%B1%84%EA%B6%8C+%ED%8F%AC%EA%B8%B0">채권 포기</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업, 도소매·유통업, 건설·부동산업, 금융·보험업</div></div><div class="card">
+<a class="ttl" href="d-prec-625233.html">
+<h2><span class="score s-mid">75</span>외국납부세액 한도 계산 시 국내결손금의 국외소득 차감 불가</h2>
+<div class="meta">외국납부세액공제한도액 계산시 국내결손금을 국외원천소득에 배부하여 계산할 명시적인 규정이 없어 피고 정당세액을 받아들일 수 없음(주요쟁점) · - · 서울고등법원-2023-누-39429
+ · 2026-09-09 · 납세자승 · 영향도 상</div>
+<div class="sum">국제중재재판소 판정에 따라 지출된 실손해 전보 목적의 중재금은 사업 관련성과 통상성이 인정되어 법인세법상 손금에 해당합니다. 또한 외국납부세액공제 한도 계산 시 국내사업장에서 발생한 결손금을 국외원천소득에서 안분하여 차감하도록 한 명시적인 법령 규정이 없으므로, 과세관청이 국내결손금을 배부하여 국외원천소득 및 공제한도를 …</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag iss" href="all.html?issue=%EC%99%B8%EA%B5%AD%EB%82%A9%EB%B6%80%EC%84%B8%EC%95%A1%EA%B3%B5%EC%A0%9C">외국납부세액공제</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EC%99%B8%EC%9B%90%EC%B2%9C%EC%86%8C%EB%93%9D">국외원천소득</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EB%82%B4%EA%B2%B0%EC%86%90%EA%B8%88">국내결손금</a></div>
+<div class="tags"></div>
+<div class="who">해당 업종군: 제조업, 건설·부동산업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-618289.html">
+<h2><span class="score s-mid">75</span>적격합병 시 고용창출투자세액공제 이월액 승계 허용 및 월평균 근로자 수 산정</h2>
+<div class="meta">법인세부과처분취소 · 대법원 · 2022두53921
+ · 2025-11-06 · 납세자승 · 영향도 중</div>
+<div class="sum">적격합병 시 합병법인은 피합병법인의 고용창출투자세액공제 미공제 이월액을 승계하여 공제받을 수 있습니다. 또한 합병에 따른 상시근로자 승계 시 &#x27;승계한 상시근로자 수&#x27;는 합병등기일 특정 시점의 실제 승계 인원이 아니라, 피합병법인의 직전 및 해당 과세연도 매월 말 현재 상시근로자 수를 기초로 산정해야 합니다. 대법원은 과세…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag iss" href="all.html?issue=%EC%A0%81%EA%B2%A9%ED%95%A9%EB%B3%91">적격합병</a><a class="tag iss" href="all.html?issue=%EC%84%B8%EC%95%A1%EA%B3%B5%EC%A0%9C%EC%8A%B9%EA%B3%84">세액공제승계</a><a class="tag iss" href="all.html?issue=%EA%B3%A0%EC%9A%A9%EC%B0%BD%EC%B6%9C%ED%88%AC%EC%9E%90%EC%84%B8%EC%95%A1%EA%B3%B5%EC%A0%9C">고용창출투자세액공제</a></div>
+<div class="tags"></div>
+<div class="who">해당 업종군: 제조업, 건설·부동산업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-606513.html">
+<h2><span class="score s-mid">75</span>현물출자 양도금액은 취득주식 시가 기준, 장부가액 정상가격 불인정</h2>
+<div class="meta">법인세부과처분취소 · 대법원 · 2024두56436
+ · 2025-02-20 · 납세자승 · 영향도 중</div>
+<div class="sum">국외 자회사에 다른 자회사 주식을 현물출자한 사안에서, 과세관청은 계약서 및 장부상 취득원가를 국조법상 정상가격 또는 법인세법상 양도금액으로 보아 처분손실을 부인하고 익금산입 과세하였습니다. 대법원은 장부가액은 국조법상 합리적 방법으로 산출된 정상가격이 아니며, 현물출자 시 익금산입할 자산의 양도금액은 대가로 취득한 주식…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag iss" href="all.html?issue=%ED%98%84%EB%AC%BC%EC%B6%9C%EC%9E%90">현물출자</a><a class="tag iss" href="all.html?issue=%EC%A0%95%EC%83%81%EA%B0%80%EA%B2%A9">정상가격</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EC%A0%9C%EC%A1%B0%EC%84%B8%EC%A1%B0%EC%A0%95%EB%B2%95">국제조세조정법</a></div>
+<div class="tags"></div>
+<div class="who">해당 업종군: 제조업, 건설·부동산업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-612297.html">
+<h2><span class="score s-mid">75</span>수입배당금 익금불산입 시 차감할 차입금이자는 그 배당이 발생한 주식의 장부가액 적수로 계산</h2>
+<div class="meta">수입배당금 익금불산입에서 제외되는  차입금이자의 적수 계산 · - · 수원지방법원-2023-구합-69054
+ · 2025-02-20 · 납세자승 · 영향도 중</div>
+<div class="sum">전기기기 제조 법인이 자회사 유상감자로 받은 대가와 관련해 수입배당금 익금불산입액을 산정하면서 차감할 차입금이자를 어떤 주식의 장부가액 적수로 계산할지가 다투어진 사안. 법원은 익금불산입 대상 수입배당금액이 발생한 주식(유상감자 주식)의 장부가액 적수로 계산하는 것이 타당하고, 투자약정서상 출자금 전액에 해당할 때까지 받…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A7%80%EC%A3%BC%ED%9A%8C%EC%82%AC">지주회사</a><a class="tag ind" href="all.html?industry=%EC%A0%9C%EC%A1%B0%EC%97%85">제조업</a><a class="tag iss" href="all.html?issue=%EC%88%98%EC%9E%85%EB%B0%B0%EB%8B%B9%EA%B8%88+%EC%9D%B5%EA%B8%88%EB%B6%88%EC%82%B0%EC%9E%85">수입배당금 익금불산입</a><a class="tag iss" href="all.html?issue=%EC%B0%A8%EC%9E%85%EA%B8%88%EC%9D%B4%EC%9E%90">차입금이자</a><a class="tag iss" href="all.html?issue=%EC%9E%A5%EB%B6%80%EA%B0%80%EC%95%A1+%EC%A0%81%EC%88%98">장부가액 적수</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업, 지주회사·투자업, 건설·부동산업, 금융·보험업</div></div><div class="card">
+<a class="ttl" href="d-prec-345604.html">
+<h2><span class="score s-mid">75</span>지적재산권 침해와 관련해 지급한 합의금은 손금에 산입할 수 있음</h2>
+<div class="meta">합의금의 손금 산입 여부 · - · 서울행정법원-2020-구합-55336
+ · 2021-09-17 · 납세자승 · 영향도 중</div>
+<div class="sum">법인이 지적재산권 침해와 관련해 지급한 합의금의 손금성이 다투어진 사안. 법원은 그 합의금을 손금으로 산입할 수 있다고 판단함.</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EC%A0%9C%EC%A1%B0%EC%97%85">제조업</a><a class="tag iss" href="all.html?issue=%ED%95%A9%EC%9D%98%EA%B8%88">합의금</a><a class="tag iss" href="all.html?issue=%EC%86%90%EA%B8%88%EC%82%B0%EC%9E%85">손금산입</a><a class="tag iss" href="all.html?issue=%EC%A7%80%EC%A0%81%EC%9E%AC%EC%82%B0%EA%B6%8C+%EC%B9%A8%ED%95%B4">지적재산권 침해</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업, 정보통신·서비스업, 건설·부동산업, 금융·보험업</div></div><div class="card">
+<a class="ttl" href="d-prec-612659.html">
+<h2><span class="score s-mid">73</span>상표 사용료 미수취는 부당행위계산부인 대상이지만 과세관청이 시가를 입증하지 못해 처분이 위법</h2>
+<div class="meta">상표권 미수취 거래에 법인세법 제52조에 따른 부당행위계산 부인을 적용한 처분에 있어 피고의 시가를 인정할 근거가 없어 위법 · - · 서울행정법원-2018-구합-84652
+ · 2025-09-11 · 일부승 · 영향도 상</div>
+<div class="sum">법인이 계열사 등으로부터 상표 사용료를 받지 않은 데 대해 부당행위계산부인이 적용된 사안. 법원은 사용료를 수취하지 않은 것 자체는 경제적 합리성을 결여해 구 법인세법 제52조의 부당행위계산부인 대상에 해당한다고 보면서도, 과세관청이 제출한 증거만으로는 그가 산정한 상표 사용료가 부당행위계산부인의 적용 기준이 되는 &#x27;시가…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A7%80%EC%A3%BC%ED%9A%8C%EC%82%AC">지주회사</a><a class="tag ind" href="all.html?industry=%EA%B7%B8%EB%A3%B9+%EA%B3%84%EC%97%B4%EC%82%AC">그룹 계열사</a><a class="tag iss" href="all.html?issue=%EC%83%81%ED%91%9C%EA%B6%8C+%EC%82%AC%EC%9A%A9%EB%A3%8C">상표권 사용료</a><a class="tag iss" href="all.html?issue=%EB%B6%80%EB%8B%B9%ED%96%89%EC%9C%84%EA%B3%84%EC%82%B0+%EB%B6%80%EC%9D%B8">부당행위계산 부인</a><a class="tag iss" href="all.html?issue=%EC%8B%9C%EA%B0%80+%EC%9E%85%EC%A6%9D%EC%B1%85%EC%9E%84">시가 입증책임</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 지주회사·투자업, 제조업, 건설·부동산업, 금융·보험업</div></div><div class="card">
+<a class="ttl" href="d-prec-351130.html">
+<h2><span class="score s-mid">73</span>국내 모회사가 지급한 해외현지법인장 영입대가는 사업 관련 통상적 비용으로 손금에 해당</h2>
+<div class="meta">국내 모회사가 지급한 해외현지법인장의 영입대가는 사업 관련으로 지출된 통상성이 인정되는 비용으로서 손금에 해당함 · - · 서울행정법원-2022-구합-84529
+ · 2024-02-07 · 납세자승 · 영향도 중</div>
+<div class="sum">국내 모회사가 해외현지법인장을 영입하면서 지급한 대가의 손금성이 다투어진 사안. 법원은 그 영업비용이 원고의 사업과 관련해 발생하거나 지출된 비용으로서 일반적으로 용인되는 통상적인 손실 또는 비용, 즉 손금에 해당한다고 보아 법인세 부과처분 중 일정액을 초과하는 부분을 취소하고 소송비용을 과세관청에 부담시킴.</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%ED%95%B4%EC%99%B8%EC%9E%90%ED%9A%8C%EC%82%AC+%EB%B3%B4%EC%9C%A0+%EB%B2%95%EC%9D%B8">해외자회사 보유 법인</a><a class="tag iss" href="all.html?issue=%EC%98%81%EC%9E%85%EB%8C%80%EA%B0%80">영입대가</a><a class="tag iss" href="all.html?issue=%EC%86%90%EA%B8%88%EC%82%B0%EC%9E%85">손금산입</a><a class="tag iss" href="all.html?issue=%ED%86%B5%EC%83%81%EC%A0%81+%EB%B9%84%EC%9A%A9">통상적 비용</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업, 정보통신·서비스업, 해외진출·외국계법인, 건설·부동산업</div></div><div class="card">
+<a class="ttl" href="d-prec-347840.html">
+<h2><span class="score s-mid">73</span>사업상 가치를 평가해 대가를 지급했다고 단정할 수 없는 합병 영업권은 합병평가차익이 아님</h2>
+<div class="meta">(심리불속행) 합병시 회계상 계상한 영업권이 법인세법 시행령 제24조 제4항에 따른 감가상각자산으로서 합병평가차익에 해당하는지 여부 · - · 대법원-2022-두-61649
+ · 2023-02-23 · 납세자승 · 영향도 상</div>
+<div class="sum">합병 시 회계상 계상한 영업권이 법인세법 시행령 제24조 제4항에 따른 감가상각자산으로서 합병평가차익에 해당하는지가 다투어진 사안. 원심은 그 영업권을 합병법인인 원고가 사업상의 가치를 평가해 대가를 지급한 것이라고 단정하기 어려우므로 과세관청이 그 가액을 합병평가차익으로 보아 익금에 산입해 법인세를 계산한 처분은 위법하…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%ED%95%A9%EB%B3%91+%EA%B2%BD%ED%97%98+%EB%B2%95%EC%9D%B8">합병 경험 법인</a><a class="tag iss" href="all.html?issue=%ED%95%A9%EB%B3%91">합병</a><a class="tag iss" href="all.html?issue=%EC%98%81%EC%97%85%EA%B6%8C">영업권</a><a class="tag iss" href="all.html?issue=%ED%95%A9%EB%B3%91%ED%8F%89%EA%B0%80%EC%B0%A8%EC%9D%B5">합병평가차익</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업, 건설·부동산업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-346206.html">
+<h2><span class="score s-mid">73</span>사업상 가치를 평가해 대가를 지급했다고 단정할 수 없는 합병 영업권은 합병평가차익이 아님 (항소심)</h2>
+<div class="meta">합병시 회계상 계상한 영업권이 법인세법 시행령 제24조 제4항에 따른 감가상각자산으로서 합병평가차익에 해당하는지 여부 · - · 서울고등법원-2020-누-39275
+ · 2022-09-20 · 납세자승 · 영향도 상</div>
+<div class="sum">합병 시 회계상 계상한 영업권이 법인세법 시행령 제24조 제4항의 감가상각자산으로서 합병평가차익에 해당하는지가 다투어진 사안의 항소심. 법원은 그 영업권을 합병법인인 원고가 사업상의 가치를 평가해 대가를 지급한 것이라고 단정하기 어려우므로 과세관청이 그 가액을 합병평가차익으로 보아 익금에 산입한 처분은 위법하다고 판단함.</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%ED%95%A9%EB%B3%91+%EA%B2%BD%ED%97%98+%EB%B2%95%EC%9D%B8">합병 경험 법인</a><a class="tag iss" href="all.html?issue=%ED%95%A9%EB%B3%91">합병</a><a class="tag iss" href="all.html?issue=%EC%98%81%EC%97%85%EA%B6%8C">영업권</a><a class="tag iss" href="all.html?issue=%ED%95%A9%EB%B3%91%ED%8F%89%EA%B0%80%EC%B0%A8%EC%9D%B5">합병평가차익</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업, 건설·부동산업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-351398.html">
+<h2><span class="score s-mid">72</span>공사대금채권이 합의 시점에 확정되었으므로 5년이 지난 뒤의 부과처분은 제척기간 도과로 위법</h2>
+<div class="meta">지연손해금의 변제에 우선 충당되었다고 본 처분은 적법하고 추가공사대금채권은  201x 사업연도 무렵에는 그 소득의 실현 가능성이 상당히 높은 정도로 성숙?확정되었다고 봄이 타당하므로 법인세 과세표준 신고기한의 다음 날부터 5년이 경과하여 부과제척기간을 도과한 처분은 위법함 · - · 서울행정법원-2022-구합-76528
+ · 2024-03-07 · 일부승 · 영향도 상</div>
+<div class="sum">법인이 받은 공사대금의 변제충당과 추가공사대금채권의 익금 귀속시기가 다투어진 사안. 법원은 민법 제479조의 법정변제충당에 따라 지연손해금 변제에 우선 충당되었다고 본 처분은 적법하다고 하면서도, 원고가 재개한 공사 부분의 기성금을 확정하기로 합의한 사업연도 무렵에 공사대금 채권이 성립하고 소득의 실현 가능성이 상당히 높…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EA%B1%B4%EC%84%A4%EC%97%85">건설업</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag iss" href="all.html?issue=%EC%9D%B5%EA%B8%88+%EA%B7%80%EC%86%8D%EC%8B%9C%EA%B8%B0">익금 귀속시기</a><a class="tag iss" href="all.html?issue=%EA%B6%8C%EB%A6%AC%ED%99%95%EC%A0%95%EC%A3%BC%EC%9D%98">권리확정주의</a><a class="tag iss" href="all.html?issue=%EA%B3%B5%EC%82%AC%EB%8C%80%EA%B8%88%EC%B1%84%EA%B6%8C">공사대금채권</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 건설·부동산업, 제조업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-343292.html">
+<h2><span class="score s-mid">72</span>사회질서 위반으로 볼 수 없는 손해배상금은 손금 인정 요건을 갖춤</h2>
+<div class="meta">원고 회사가 지급한 손해배상금이 손금산입 대상인지 여부 · - · 춘천지방법원-2021-구합-30943
+ · 2022-09-20 · 납세자승 · 영향도 상</div>
+<div class="sum">법인이 지급한 손해배상금이 손금산입 대상인지가 다투어진 사안. 법원은 그 지출을 원고가 사회질서를 위반해 지출한 비용으로 볼 수 없고 손금 인정 요건을 갖추었다고 판단해 2014~2015 사업연도 법인세 경정처분 중 해당 부분을 취소함.</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag iss" href="all.html?issue=%EC%86%90%ED%95%B4%EB%B0%B0%EC%83%81%EA%B8%88">손해배상금</a><a class="tag iss" href="all.html?issue=%EC%86%90%EA%B8%88%EC%82%B0%EC%9E%85">손금산입</a><a class="tag iss" href="all.html?issue=%ED%86%B5%EC%83%81%EC%A0%81+%EB%B9%84%EC%9A%A9">통상적 비용</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업, 건설·부동산업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-343584.html">
+<h2><span class="score s-mid">72</span>지급증빙이 있는 물품구매대금은 가공경비가 아니어서 손금불산입할 수 없음</h2>
+<div class="meta">(심리불속행) 가공경비의 손금불산입 · - · 대법원-2022-두-33156
+ · 2022-04-28 · 일부승 · 영향도 중</div>
+<div class="sum">법인이 거래처에 지급한 수수료의 가공성이 다투어진 사안. 원심은 그 수수료 중 일부는 대표자 가족 계좌로 반환되는 등 가공경비로서 손금불산입 및 대표자 상여처분 대상이지만 나머지 일부는 물품구매대금이라는 지급증빙이 있어 가공경비가 아니라고 보았고, 대법원은 과세관청의 상고를 기각함(상고비용 피고 부담).</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EB%8F%84%EC%86%8C%EB%A7%A4%EC%97%85">도소매업</a><a class="tag iss" href="all.html?issue=%EA%B0%80%EA%B3%B5%EA%B2%BD%EB%B9%84">가공경비</a><a class="tag iss" href="all.html?issue=%EC%86%90%EA%B8%88%EB%B6%88%EC%82%B0%EC%9E%85">손금불산입</a><a class="tag iss" href="all.html?issue=%EC%A7%80%EA%B8%89%EC%A6%9D%EB%B9%99">지급증빙</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 도소매·유통업, 제조업, 건설·부동산업, 금융·보험업</div></div><div class="card">
+<a class="ttl" href="d-prec-622843.html">
+<h2><span class="score s-mid">72</span>계약에 따라 실제로 이루어진 해외 광구 지분 양도를 부인한 경정거부처분은 위법</h2>
+<div class="meta">법인세경정거부처분취소 · 서울고등법원 · 2020누57181
+ · 2022-01-21 · 납세자승 · 영향도 상</div>
+<div class="sum">인도네시아 유전·가스 광구 사업에 참여한 법인이 해외 파트너와 협력계약 및 동등이익 계약을 체결해 보유 지분 20% 중 절반인 10%를 양도하고, 이후 추가로 5%를 다른 회사에 양도하여 2013~2015 사업연도에는 지분이 5%에 불과하다며 경정청구를 하였다가 거부된 사안입니다. 과세관청은 계약에 따른 지분 이전을 인정…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%ED%95%B4%EC%99%B8%EC%9E%90%EC%9B%90%EA%B0%9C%EB%B0%9C">해외자원개발</a><a class="tag ind" href="all.html?industry=%EC%84%9D%EC%9C%A0%C2%B7%EA%B0%80%EC%8A%A4">석유·가스</a><a class="tag iss" href="all.html?issue=%ED%95%B4%EC%99%B8%EC%9E%90%EC%9B%90%EA%B0%9C%EB%B0%9C">해외자원개발</a><a class="tag iss" href="all.html?issue=%EC%A7%80%EB%B6%84+%EC%96%91%EB%8F%84+%EC%9D%B8%EC%A0%95">지분 양도 인정</a><a class="tag iss" href="all.html?issue=%EB%8F%99%EB%93%B1%EC%9D%B4%EC%9D%B5+%EA%B3%84%EC%95%BD">동등이익 계약</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-623939.html">
+<h2><span class="score s-mid">70</span>동시 취득한 관계회사 주식은 법인세법상 무수익자산에 해당 안 됨</h2>
+<div class="meta">법인세부과처분 및 소득금액변동통지처분 취소 · 서울고등법원 · 2023누42456
+ · 2024-01-16 · 납세자승 · 영향도 중</div>
+<div class="sum">두 회사가 서로의 주식을 동시에 취득하여 상호 보유하게 된 경우, 주식 취득 자체가 무효가 아니고 발행회사의 순자산과 이익잉여금이 충분하여 향후 가치 상승 및 처분이익을 얻을 수 있다면 이를 법인세법상 무수익자산으로 볼 수 없다고 판단하였습니다. 이에 따라 과세관청이 해당 주식 취득을 무수익자산 매입에 따른 부당행위계산부…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag iss" href="all.html?issue=%EB%B6%80%EB%8B%B9%ED%96%89%EC%9C%84%EA%B3%84%EC%82%B0%EB%B6%80%EC%9D%B8">부당행위계산부인</a><a class="tag iss" href="all.html?issue=%EB%AC%B4%EC%88%98%EC%9D%B5%EC%9E%90%EC%82%B0">무수익자산</a><a class="tag iss" href="all.html?issue=%EC%83%81%ED%98%B8%EC%A3%BC%EC%8B%9D%EC%B7%A8%EB%93%9D">상호주식취득</a></div>
+<div class="tags"></div>
+<div class="who">해당 업종군: 제조업, 건설·부동산업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-337224.html">
+<h2><span class="score s-mid">70</span>납세고지서 송달이 국세기본법에 위배되어 효력이 없으면 그 처분은 당연무효</h2>
+<div class="meta">법인세부과처분취소 · - · 대법원-2021-두-58974
+ · 2022-03-17 · 납세자승 · 영향도 상</div>
+<div class="sum">법인세 부과처분의 납세고지서 송달이 적법했는지가 다투어진 사안. 법원은 그 송달이 구 국세기본법 제10조의 규정에 위배되어 부적법한 것으로서 효력이 발생하지 않았다고 봄이 타당하고 적법한 송달이 없는 이상 그 처분은 당연무효에 해당해 취소되어야 한다고 보았으며, 대법원은 과세관청의 상고를 기각함(상고비용 피고 부담).</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag iss" href="all.html?issue=%EB%82%A9%EC%84%B8%EA%B3%A0%EC%A7%80%EC%84%9C+%EC%86%A1%EB%8B%AC">납세고지서 송달</a><a class="tag iss" href="all.html?issue=%EB%8B%B9%EC%97%B0%EB%AC%B4%ED%9A%A8">당연무효</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EC%84%B8%EA%B8%B0%EB%B3%B8%EB%B2%95+%EC%A0%9C10%EC%A1%B0">국세기본법 제10조</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업, 건설·부동산업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-335900.html">
+<h2><span class="score s-mid">70</span>납세고지서 송달이 부적법하면 그 처분은 당연무효 (항소심)</h2>
+<div class="meta">법인세부과처분취소 · - · 서울고등법원-2021-누-38309
+ · 2021-10-20 · 납세자승 · 영향도 상</div>
+<div class="sum">법인세 부과처분의 납세고지서 송달이 적법했는지가 다투어진 사안의 항소심. 법원은 그 송달이 구 국세기본법 제10조의 규정에 위배되어 부적법한 것으로서 효력이 발생하지 않았고 적법한 송달이 없는 이상 처분은 당연무효에 해당해 취소되어야 한다고 판단함.</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag iss" href="all.html?issue=%EB%82%A9%EC%84%B8%EA%B3%A0%EC%A7%80%EC%84%9C+%EC%86%A1%EB%8B%AC">납세고지서 송달</a><a class="tag iss" href="all.html?issue=%EB%8B%B9%EC%97%B0%EB%AC%B4%ED%9A%A8">당연무효</a><a class="tag iss" href="all.html?issue=%EA%B5%AD%EC%84%B8%EA%B8%B0%EB%B3%B8%EB%B2%95+%EC%A0%9C10%EC%A1%B0">국세기본법 제10조</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업, 건설·부동산업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-344656.html">
+<h2><span class="score s-lo">69</span>감정평가액과 취득가액이 있으면 기준시가만으로는 시가로 인정하기 어려움</h2>
+<div class="meta">원고가 특수관계인으로부터 부동산을 시가보다 높은 가액에 현물출자받은 것에 대해 부당행위계산 부인 규정에 따라 현물출자가액과 시가의 차액을 원고의 익금으로 산입하고 상여로 소득처분한 것의 적정 여부 · - · 제주지방법원-2020-구합-5342
+ · 2022-02-15 · 일부승 · 영향도 상</div>
+<div class="sum">법인이 특수관계인으로부터 부동산을 시가보다 높은 가액에 현물출자받은 데 대해 부당행위계산 부인으로 차액을 익금산입하고 상여로 소득처분한 처분이 다투어진 사안. 법원은 2014년 현물출자의 경우 쟁점부동산의 감정평가액과 당초 취득가액을 고려할 때 과세관청이 평가한 시가가 기준시가에 불과해 시가로 인정하기 어려우므로 그 차액…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EB%86%8D%EC%97%85%ED%9A%8C%EC%82%AC%EB%B2%95%EC%9D%B8">농업회사법인</a><a class="tag iss" href="all.html?issue=%EB%B6%80%EB%8B%B9%ED%96%89%EC%9C%84%EA%B3%84%EC%82%B0+%EB%B6%80%EC%9D%B8">부당행위계산 부인</a><a class="tag iss" href="all.html?issue=%ED%98%84%EB%AC%BC%EC%B6%9C%EC%9E%90">현물출자</a><a class="tag iss" href="all.html?issue=%EA%B3%A0%EA%B0%80%EB%A7%A4%EC%9E%85">고가매입</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 건설·부동산업, 제조업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-343860.html">
+<h2><span class="score s-lo">68</span>조세수입 감소 인식이 없으면 장기부과제척기간을 적용할 수 없음 (파기환송)</h2>
+<div class="meta">(파기환송)사실과 다른 세금계산서에 의한 매입금액을 손금에 산입할 수 있는지 여부 및 소득금액변동통지의 적법 여부 · - · 대법원-2018-두-39034
+ · 2021-12-30 · 일부승 · 영향도 상</div>
+<div class="sum">사실과 다른 세금계산서에 의한 매입금액의 손금산입 가부와 소득금액변동통지의 적법성이 다투어진 사안. 대법원은 상표권 사용료 등이 실제 재화·용역 공급이 없는 가공거래이지만 그 매입세액을 공제받는 것이 국가 조세수입 감소에 대한 인식이 있었다고 할 수 없어 장기부과제척기간 적용은 위법하고, 소득금액변동통지된 소득은 세목·소…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag iss" href="all.html?issue=%EB%B6%80%EA%B3%BC%EC%A0%9C%EC%B2%99%EA%B8%B0%EA%B0%84">부과제척기간</a><a class="tag iss" href="all.html?issue=%EB%B6%80%EC%A0%95%ED%96%89%EC%9C%84">부정행위</a><a class="tag iss" href="all.html?issue=%EA%B0%80%EA%B3%B5%EA%B1%B0%EB%9E%98">가공거래</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업, 건설·부동산업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-622929.html">
+<h2><span class="score s-lo">65</span>상호 주식 동시 취득은 상법상 유효하며 무수익자산 아님</h2>
+<div class="meta">법인세부과처분및소득금액변동통지처분취소 · 대법원 · 2024두34641
+ · 2026-06-24 · 납세자승 · 영향도 중</div>
+<div class="sum">과세관청은 상호 주식 취득이 상법 제342조의2 제1항(자회사의 모회사 주식 취득 금지) 위반으로 무효이며, 이에 따라 취득한 주식이 무수익 자산이자 매입대금이 업무무관 가지급금에 해당한다고 보아 법인세를 과세하였습니다. 대법원은 모자회사 관계 형성과 주식 취득이 동시에 이루어진 경우에는 상법상 금지 규정이 적용되지 않아…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag iss" href="all.html?issue=%EB%B6%80%EB%8B%B9%ED%96%89%EC%9C%84%EA%B3%84%EC%82%B0%EB%B6%80%EC%9D%B8">부당행위계산부인</a><a class="tag iss" href="all.html?issue=%EB%AC%B4%EC%88%98%EC%9D%B5%EC%9E%90%EC%82%B0">무수익자산</a><a class="tag iss" href="all.html?issue=%EC%97%85%EB%AC%B4%EB%AC%B4%EA%B4%80%EA%B0%80%EC%A7%80%EA%B8%89%EA%B8%88">업무무관가지급금</a></div>
+<div class="tags"></div>
+<div class="who">해당 업종군: 제조업, 건설·부동산업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-620317.html">
+<h2><span class="score s-lo">65</span>양도한 자산의 취득가액에 일부 누락이 있어도 법인세 계산 시 손금으로 산입할 수 있음</h2>
+<div class="meta">자산의 취득은 익금 내지 손금과 원칙적으로 무관하므로, 양도한 자산의 취득 가액에 일부 누락이 있더라도 법인세 산정시 손금으로 산입할 수 있음 · - · 광주고등법원(제주)-2025-누-1112
+ · 2026-04-08 · 납세자승 · 영향도 중</div>
+<div class="sum">법인이 2021 사업연도 법인세 경정청구를 했다가 거부당한 사안. 자산의 취득 자체는 익금·손금과 원칙적으로 무관하므로 양도한 자산의 취득가액에 일부 누락이 있더라도 법인세 산정 시 손금에 산입할 수 있다고 본 제1심 판단이 유지되어, 과세관청의 항소가 기각됨.</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EB%B6%80%EB%8F%99%EC%82%B0+%EA%B0%9C%EB%B0%9C%EC%97%85">부동산 개발업</a><a class="tag iss" href="all.html?issue=%EC%B7%A8%EB%93%9D%EA%B0%80%EC%95%A1">취득가액</a><a class="tag iss" href="all.html?issue=%EC%86%90%EA%B8%88%EC%82%B0%EC%9E%85">손금산입</a><a class="tag iss" href="all.html?issue=%EC%9E%90%EC%82%B0+%EC%96%91%EB%8F%84">자산 양도</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 건설·부동산업, 제조업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-623941.html">
+<h2><span class="score s-lo">65</span>상호 동시 주식취득 매매대금은 무수익자산 매입이나 업무무관 가지급금에 해당 안 됨</h2>
+<div class="meta">법인세부과처분 및 소득금액변동통지처분 취소 · 서울행정법원 · 2021구합76378
+ · 2023-04-20 · 납세자승 · 영향도 중</div>
+<div class="sum">두 법인이 동시에 상호 주식을 취득하여 모자회사 관계가 형성된 거래에 대해 과세관청은 상법상 자회사의 모회사 주식 취득 금지 규정을 위반하여 무효이므로 주식매매대금이 업무무관 가지급금이자 무수익자산 매입에 해당한다고 보아 법인세를 과세하였습니다. 법원은 상호 동시 주식취득으로 모자관계가 형성된 경우는 상법상 자회사의 모회…</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag iss" href="all.html?issue=%EB%B6%80%EB%8B%B9%ED%96%89%EC%9C%84%EA%B3%84%EC%82%B0%EB%B6%80%EC%9D%B8">부당행위계산부인</a><a class="tag iss" href="all.html?issue=%EB%AC%B4%EC%88%98%EC%9D%B5%EC%9E%90%EC%82%B0">무수익자산</a><a class="tag iss" href="all.html?issue=%EC%97%85%EB%AC%B4%EB%AC%B4%EA%B4%80%EA%B0%80%EC%A7%80%EA%B8%89%EA%B8%88">업무무관가지급금</a></div>
+<div class="tags"></div>
+<div class="who">해당 업종군: 제조업, 건설·부동산업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-345052.html">
+<h2><span class="score s-lo">62</span>과거 사업연도에 세무조정을 누락했어도 손금 귀속시기가 도래한 사업연도에 손금산입 가능</h2>
+<div class="meta">2000 사업연도에 손금불산입 세무조정 누락한 출연금에 대하여 2013 사업연도에 손금귀속시기가 도래하였다는 이유로 손금에 산입할 수 있는지 · - · 서울행정법원-2020-구합-71116
+ · 2022-06-23 · 납세자승 · 영향도 상</div>
+<div class="sum">법인이 2000 사업연도에 출연금을 전액 감액하면서 법인세 신고 과정에서 손금불산입(유보) 세무조정을 하지 않았다가, 2013 사업연도에 손금 귀속시기가 도래했다며 손금산입을 주장한 사안. 법원은 그 주장을 신의성실의 원칙에 위반될 정도의 심한 배신행위라거나 과세관청이 원고의 법인세 신고·납부에 관해 보호받을 가치 있는 …</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag iss" href="all.html?issue=%EC%84%B8%EB%AC%B4%EC%A1%B0%EC%A0%95+%EB%88%84%EB%9D%BD">세무조정 누락</a><a class="tag iss" href="all.html?issue=%EC%86%90%EA%B8%88+%EA%B7%80%EC%86%8D%EC%8B%9C%EA%B8%B0">손금 귀속시기</a><a class="tag iss" href="all.html?issue=%EC%9C%A0%EB%B3%B4">유보</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업, 건설·부동산업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-342254.html">
+<h2><span class="score s-lo">62</span>합병으로 부동산이 양도되면 그때 이월과세가 종료되고 법인세 납세의무가 성립 (제1심)</h2>
+<div class="meta">합병등기일에 전환법인에게 이월과세된 양도소득세를 법인세로 납부할 납세의무가 성립됨 · - · 수원지방법원-2021-구합-62608
+ · 2022-01-13 · 납세자승 · 영향도 중</div>
+<div class="sum">법인전환에 따라 이월과세된 양도소득세를 법인세로 납부할 납세의무가 언제 성립하는지가 다투어진 사안의 제1심. 법원은 이 사건 부동산이 합병으로 전환법인에게서 원고에게 양도되었으므로 전환법인이 합병된 때 이월과세가 종료되었고 그때 이월과세된 양도소득세를 법인세로 납부할 의무가 발생했다고 봄이 타당하다며, 2014 사업연도 …</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag ind" href="all.html?industry=%EB%B2%95%EC%9D%B8%EC%A0%84%ED%99%98+%EA%B2%BD%ED%97%98+%EB%B2%95%EC%9D%B8">법인전환 경험 법인</a><a class="tag iss" href="all.html?issue=%EC%9D%B4%EC%9B%94%EA%B3%BC%EC%84%B8">이월과세</a><a class="tag iss" href="all.html?issue=%EB%B2%95%EC%9D%B8%EC%A0%84%ED%99%98">법인전환</a><a class="tag iss" href="all.html?issue=%ED%95%A9%EB%B3%91">합병</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업, 건설·부동산업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-501529.html">
+<h2><span class="score s-lo">60</span>사업 인수 초기 영업손실은 통상적 손비여서 손금불산입 처분은 위법</h2>
+<div class="meta">원고의 지배주주인 임원에게 지급한 보수는 이익처분에 의한 상여에 불과하여 손금불산입 대상임 · - · 서울행정법원-2022-구합-86112
+ · 2024-08-22 · 일부승 · 영향도 중</div>
+<div class="sum">법인이 지배주주인 임원에게 지급한 보수와 인수한 호텔사업에서 발생한 초기 영업손실의 손금성이 함께 다투어진 사안. 법원은 지배주주 임원 보수는 이익처분에 의한 상여에 불과해 손금불산입되어야 한다고 보면서도, 호텔사업을 인수해 발생한 초기 영업손실은 통상적으로 발생하는 손비로 인정할 수 있으므로 그 부분 손금불산입 처분은 …</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%ED%98%B8%ED%85%94%EC%97%85">호텔업</a><a class="tag ind" href="all.html?industry=%EC%88%99%EB%B0%95%EC%97%85">숙박업</a><a class="tag iss" href="all.html?issue=%EC%B4%88%EA%B8%B0+%EC%98%81%EC%97%85%EC%86%90%EC%8B%A4">초기 영업손실</a><a class="tag iss" href="all.html?issue=%EC%86%90%EA%B8%88%EC%82%B0%EC%9E%85">손금산입</a><a class="tag iss" href="all.html?issue=%ED%86%B5%EC%83%81%EC%A0%81+%EB%B9%84%EC%9A%A9">통상적 비용</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업, 건설·부동산업, 금융·보험업, 도소매·유통업</div></div><div class="card">
+<a class="ttl" href="d-prec-351652.html">
+<h2><span class="score s-lo">60</span>영업비용 채무는 계약 시점이 아니라 화해권고결정 확정일에 손금으로 확정됨</h2>
+<div class="meta">계약 당시에는 이 사건 영업비용 지급의무가 충분히 성숙·확정되어 손금으로서의 인식 요건을 충족하였다고 보기 어려움 · - · 서울고등법원-2024-누-36083
+ · 2024-06-25 · 납세자승 · 영향도 중</div>
+<div class="sum">법인이 계약에 따른 영업비용의 손금 귀속시기를 다툰 사안의 항소심. 법원은 계약 당시에는 그 영업비용 채무의 실현 가능성이 상당히 높은 정도로 성숙·확정되었다고 보기 어렵고 화해권고결정 확정일에야 그 정도로 성숙·확정되었다고 봄이 상당하다며 과세관청의 항소를 기각함.</div></a>
+<div class="tags"><a class="tag tx" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8">법인세</a><a class="tag ind" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85">전업종</a><a class="tag iss" href="all.html?issue=%EC%86%90%EA%B8%88+%EA%B7%80%EC%86%8D%EC%8B%9C%EA%B8%B0">손금 귀속시기</a><a class="tag iss" href="all.html?issue=%EC%B1%84%EB%AC%B4%ED%99%95%EC%A0%95%EC%A3%BC%EC%9D%98">채무확정주의</a><a class="tag iss" href="all.html?issue=%EC%98%81%EC%97%85%EB%B9%84%EC%9A%A9">영업비용</a></div>
+<div class="tags"><span class="tag smp">미발송</span></div>
+<div class="who">해당 업종군: 제조업, 건설·부동산업, 금융·보험업, 도소매·유통업</div></div>
+<div id="tr-manual" style="display:none">
+  <div class="manual-head">
+    <b>길게 눌러 → 복사</b>
+    <button type="button" id="tr-manual-all">전체선택</button>
+    <button type="button" id="tr-manual-close">닫기</button>
+  </div>
+  <textarea readonly rows="12"></textarea>
+  <div class="manual-tip">이 화면은 HTTPS가 아니라 브라우저가 자동 복사를 막습니다.
+  한 번만 설정하면 버튼 한 번으로 복사됩니다 — 상태 화면의 안내를 참고하세요.</div>
+</div>
+</main>
+<footer>자동 분석 결과입니다. 실제 경정청구 전 세무대리인 검토가 필요합니다.</footer>
+<script>
+function trIsIOS(){
+  return /iPad|iPhone|iPod/.test(navigator.userAgent)
+      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+function trCopy(text){
+  if (navigator.clipboard && window.isSecureContext) {
+    return navigator.clipboard.writeText(text);
+  }
+  // iOS에서는 execCommand가 성공을 반환해도 클립보드에 들어가지 않습니다.
+  // 거짓 성공을 표시하지 않도록 시도조차 하지 않습니다.
+  if (trIsIOS()) {
+    return Promise.reject(new Error('ios-insecure'));
+  }
+  return new Promise(function(resolve, reject){
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '0';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    try {
+      ta.select();
+      var ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      ok ? resolve() : reject(new Error('execCommand failed'));
+    } catch (err) {
+      document.body.removeChild(ta);
+      reject(err);
+    }
+  });
+}
+
+function trFlash(btn, msg, bad){
+  var original = btn.dataset.label;
+  btn.textContent = msg;
+  btn.classList.add(bad ? 'fail' : 'done');
+  setTimeout(function(){
+    btn.textContent = original;
+    btn.classList.remove('done', 'fail');
+  }, 1800);
+}
+
+// 자동 복사가 불가능한 경우: 내용을 펼쳐 전체 선택해 둡니다.
+// 사용자는 길게 눌러 '복사'만 누르면 됩니다.
+function trManual(text){
+  var box = document.getElementById('tr-manual');
+  if (!box) return;
+  var ta = box.querySelector('textarea');
+  ta.value = text;
+  box.style.display = 'block';
+  box.scrollIntoView({behavior:'smooth', block:'center'});
+  setTimeout(function(){
+    ta.focus();
+    ta.setSelectionRange(0, ta.value.length);
+  }, 250);
+}
+
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('.copy');
+  if (btn) {
+    e.preventDefault();
+    e.stopPropagation();
+    var el = document.getElementById(btn.dataset.target);
+    if (!el) return;
+    var text = JSON.parse(el.textContent);
+    trCopy(text).then(function(){
+      trFlash(btn, '\u2705 복사됨');
+    }).catch(function(){
+      trFlash(btn, '\u2193 아래에서 복사', true);
+      trManual(text);
+    });
+    return;
+  }
+  if (e.target.id === 'tr-manual-close') {
+    document.getElementById('tr-manual').style.display = 'none';
+  }
+  if (e.target.id === 'tr-manual-all') {
+    var ta2 = document.querySelector('#tr-manual textarea');
+    ta2.focus();
+    ta2.setSelectionRange(0, ta2.value.length);
+  }
+});
+</script>
+</body></html>

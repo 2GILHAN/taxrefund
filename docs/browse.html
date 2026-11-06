@@ -1,0 +1,236 @@
+<!doctype html><html lang="ko"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1e2126">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>분류 · 세목/업종/주제</title><style>
+:root{--bg:#f6f7f9;--card:#fff;--txt:#1c1e21;--sub:#6b7280;--line:#e5e7eb;
+      --hi:#e74c3c;--mid:#e67e22;--lo:#3498db;--ok:#16a34a;--warn:#f59e0b}
+@media(prefers-color-scheme:dark){:root{--bg:#15171a;--card:#1e2126;--txt:#e8eaed;
+      --sub:#9aa0a6;--line:#2c3036}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--txt);
+     font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",
+     "Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.6;
+     padding-bottom:env(safe-area-inset-bottom)}
+a{color:inherit;text-decoration:none}
+header{position:sticky;top:0;z-index:10;background:var(--card);border-bottom:1px solid var(--line);
+       padding:12px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header h1{font-size:17px;margin:0;font-weight:650}
+nav{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+nav a{font-size:13px;padding:6px 12px;border-radius:999px;background:var(--bg);
+      border:1px solid var(--line);white-space:nowrap}
+nav a.on{background:var(--txt);color:var(--card);border-color:var(--txt)}
+main{padding:16px;max-width:820px;margin:0 auto}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;
+      text-align:center;display:block;transition:transform .06s,border-color .12s}
+.stat:active{transform:scale(.96);border-color:var(--txt)}
+@media(hover:hover){.stat:hover{border-color:var(--txt)}}
+.stat b{display:block;font-size:22px;line-height:1.2}
+.stat span{font-size:11px;color:var(--sub)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.chip{font-size:13px;padding:7px 14px;border-radius:999px;background:var(--card);
+      border:1px solid var(--line);color:var(--sub);white-space:nowrap}
+.chip.on{background:var(--txt);color:var(--card);border-color:var(--txt);font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+      padding:14px;margin-bottom:12px;display:block}
+.card h2{font-size:16px;margin:0 0 8px;line-height:1.45;font-weight:640}
+.meta{font-size:12px;color:var(--sub);margin-bottom:8px}
+.sum{font-size:14px;color:var(--txt);opacity:.9}
+.score{display:inline-block;min-width:44px;text-align:center;color:#fff;font-weight:700;
+       font-size:13px;padding:3px 8px;border-radius:8px;margin-right:8px}
+.s-hi{background:var(--hi)}.s-mid{background:var(--mid)}.s-lo{background:var(--lo)}
+.s-no{background:var(--sub)}
+.tags{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:11px;padding:3px 9px;border-radius:999px;background:var(--bg);
+     border:1px solid var(--line);color:var(--sub)}
+.tag.co{border-color:var(--ok);color:var(--ok)}
+.tag.no{border-color:var(--sub)}
+.tag.smp{border-color:var(--warn);color:var(--warn);font-weight:600}
+.tag.tx{border-color:var(--lo);color:var(--lo)}
+.tag.ind{border-color:var(--line);color:var(--txt);opacity:.75}
+.tag.src{border-color:var(--line);color:var(--sub);opacity:.7}
+.search{display:flex;gap:6px;margin-bottom:12px}
+.search input[type=search]{flex:1;min-width:0;font-size:15px;padding:9px 13px;
+     border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--txt);
+     -webkit-appearance:none}
+.search button{font-size:14px;padding:9px 16px;border-radius:10px;border:1px solid var(--txt);
+     background:var(--txt);color:var(--card);font-weight:600;white-space:nowrap}
+.facet{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px}
+.fname{font-size:11px;color:var(--sub);flex:0 0 34px;padding-top:6px;font-weight:600}
+/* 태그가 많아 줄바꿈으로 쌓이면 카드가 화면 밖으로 밀립니다.
+   가로 스크롤로 두어 목록이 늘 보이게 합니다. */
+.tchips{display:flex;gap:5px;overflow-x:auto;padding-bottom:3px;
+     scrollbar-width:none;-ms-overflow-style:none}
+.tchips::-webkit-scrollbar{display:none}
+.tchip{font-size:12px;padding:5px 11px;border-radius:999px;background:var(--card);
+     border:1px solid var(--line);color:var(--sub);white-space:nowrap;flex:0 0 auto}
+.tchip.on{background:var(--lo);color:#fff;border-color:var(--lo);font-weight:600}
+.tchip i{font-style:normal;opacity:.55;margin-left:5px;font-size:11px}
+.fsum{font-size:12px;color:var(--sub);margin:10px 0 12px}
+.clear{margin-left:10px;color:var(--hi);border-bottom:1px solid currentColor}
+/* 카드는 더 이상 통째로 링크가 아닙니다. 안에 태그 링크가 들어가는데
+   링크 안의 링크는 브라우저가 끊어 버리기 때문입니다. 제목만 링크입니다. */
+.card .ttl{display:block}
+.card .tags:empty{display:none}
+.card .tags{margin-top:8px}
+.tag.iss{border-color:var(--line);color:var(--sub)}
+.who{margin-top:8px;font-size:11px;color:var(--sub);opacity:.85}
+.quick{background:var(--card);border:1px solid var(--line);border-radius:14px;
+     padding:12px 14px;margin-bottom:14px}
+.quick .facet:last-child{margin-bottom:0}
+.lead{font-size:14px;color:var(--sub);margin-bottom:14px;line-height:1.65}
+.blist{display:flex;flex-direction:column;gap:1px;background:var(--line);
+     border-radius:10px;overflow:hidden}
+.brow{display:flex;align-items:center;gap:10px;background:var(--card);
+     padding:11px 13px}
+.brow:active{background:var(--bg)}
+@media(hover:hover){.brow:hover{background:var(--bg)}}
+.bname{flex:1;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;
+     white-space:nowrap}
+.bnum{font-size:12px;color:var(--sub);white-space:nowrap}
+.bmore{font-size:12px;color:var(--sub);margin-top:8px}
+.banner{border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:14px;
+        border:1px solid var(--warn);background:color-mix(in srgb,var(--warn) 12%,transparent)}
+.banner b{color:var(--warn)}
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;
+        padding:14px;margin-bottom:12px}
+section h3{font-size:13px;margin:0 0 10px;color:var(--sub);font-weight:600;
+           letter-spacing:.04em;text-transform:uppercase}
+ul{margin:0;padding-left:20px}li{margin-bottom:6px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px}
+.kv dt{color:var(--sub)}.kv dd{margin:0}
+.empty{text-align:center;color:var(--sub);padding:48px 16px;font-size:14px}
+footer{text-align:center;color:var(--sub);font-size:11px;padding:24px 16px}
+.back{font-size:13px;color:var(--sub);margin-bottom:12px;display:inline-block}
+code{background:var(--bg);padding:2px 6px;border-radius:6px;font-size:13px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;
+     margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+button.copy{font:inherit;font-size:14px;padding:9px 14px;border-radius:10px;cursor:pointer;
+     background:var(--txt);color:var(--card);border:1px solid var(--txt);
+     transition:transform .06s,background .12s,color .12s,border-color .12s}
+button.copy:active{transform:scale(.96)}
+button.copy.ghost{background:var(--card);color:var(--txt)}
+button.copy.mini{font-size:11px;padding:3px 9px;border-radius:999px;margin-left:8px;
+     background:var(--bg);color:var(--sub);border-color:var(--line);
+     font-weight:500;letter-spacing:0;text-transform:none;vertical-align:middle}
+button.copy.done{background:var(--ok);color:#fff;border-color:var(--ok)}
+button.copy.fail{background:var(--warn);color:#fff;border-color:var(--warn)}
+.urltext{word-break:break-all;font-size:13px;color:var(--lo)}
+#tr-manual{position:sticky;bottom:0;margin-top:14px;background:var(--card);
+     border:2px solid var(--warn);border-radius:12px;padding:12px;
+     box-shadow:0 -4px 20px rgba(0,0,0,.18)}
+.manual-head{font-size:14px;color:var(--txt);margin-bottom:8px;display:flex;
+     align-items:center;gap:8px;flex-wrap:wrap}
+.manual-head b{color:var(--warn)}
+#tr-manual-all,#tr-manual-close{font:inherit;font-size:12px;padding:5px 11px;
+     border-radius:8px;background:var(--bg);color:var(--txt);
+     border:1px solid var(--line);cursor:pointer}
+#tr-manual-all{margin-left:auto}
+#tr-manual textarea{width:100%;font-size:16px;line-height:1.5;padding:10px;
+     border-radius:8px;border:1px solid var(--line);background:var(--bg);
+     color:var(--txt);resize:vertical;font-family:inherit;-webkit-user-select:text}
+.manual-tip{font-size:11px;color:var(--sub);margin-top:8px;line-height:1.5}
+</style></head><body>
+<header><h1>📑 법인세 경정청구</h1><nav><a href="index.html" class="">알림</a><a href="all.html" class="">전체</a><a href="browse.html" class="on">분류</a><a href="status.html" class="">상태</a></nav></header>
+<main><div style="font-size:12px;color:var(--sub);margin:0 0 12px">정적 스냅샷 · 2026-11-06 18:06 KST 기준</div><div class="lead">보고 싶은 축을 누르면 그 조건으로 좁힌 목록이 열립니다.<br><a class="urltext" href="all.html">전체 목록에서 직접 검색</a>하거나 여러 축을 겹쳐 걸 수도 있습니다.</div><section><h3>세목 (12종)</h3><div class="blist"><a class="brow" href="all.html?tax=%EB%B2%95%EC%9D%B8%EC%84%B8"><span class="bname">법인세</span><span class="bnum">449건 · 알림 87</span></a><a class="brow" href="all.html?tax=%EC%83%81%EC%86%8D%EC%A6%9D%EC%97%AC%EC%84%B8"><span class="bname">상속증여세</span><span class="bnum">29건 · 알림 7</span></a><a class="brow" href="all.html?tax=%EB%B6%80%EA%B0%80%EA%B0%80%EC%B9%98%EC%84%B8"><span class="bname">부가가치세</span><span class="bnum">19건 · 알림 3</span></a><a class="brow" href="all.html?tax=%EC%A2%85%ED%95%A9%EC%86%8C%EB%93%9D%EC%84%B8"><span class="bname">종합소득세</span><span class="bnum">35건</span></a><a class="brow" href="all.html?tax=%EA%B5%90%EC%9C%A1%EC%84%B8"><span class="bname">교육세</span><span class="bnum">19건</span></a><a class="brow" href="all.html?tax=%EA%B5%AD%EC%84%B8%EA%B8%B0%EB%B3%B8"><span class="bname">국세기본</span><span class="bnum">5건</span></a><a class="brow" href="all.html?tax=%EC%96%91%EB%8F%84%EC%86%8C%EB%93%9D%EC%84%B8"><span class="bname">양도소득세</span><span class="bnum">3건</span></a><a class="brow" href="all.html?tax=%EC%A2%85%ED%95%A9%EB%B6%80%EB%8F%99%EC%82%B0%EC%84%B8"><span class="bname">종합부동산세</span><span class="bnum">3건</span></a><a class="brow" href="all.html?tax=%EC%9B%90%EC%B2%9C%EC%84%B8"><span class="bname">원천세</span><span class="bnum">2건</span></a><a class="brow" href="all.html?tax=%EA%B5%AD%EC%84%B8%EC%A7%95%EC%88%98"><span class="bname">국세징수</span><span class="bnum">1건</span></a><a class="brow" href="all.html?tax=%EC%86%8C%EB%93%9D%EC%84%B8"><span class="bname">소득세</span><span class="bnum">1건</span></a><a class="brow" href="all.html?tax=%EC%A1%B0%EC%84%B8%ED%8A%B9%EB%A1%80"><span class="bname">조세특례</span><span class="bnum">1건</span></a></div></section><section><h3>업종 (244종)</h3><div class="blist"><a class="brow" href="all.html?industry=%EC%A0%84%EC%97%85%EC%A2%85"><span class="bname">전업종</span><span class="bnum">375건 · 알림 64</span></a><a class="brow" href="all.html?industry=%EC%A0%9C%EC%A1%B0%EC%97%85"><span class="bname">제조업</span><span class="bnum">65건 · 알림 17</span></a><a class="brow" href="all.html?industry=%EA%B1%B4%EC%84%A4%EC%97%85"><span class="bname">건설업</span><span class="bnum">73건 · 알림 12</span></a><a class="brow" href="all.html?industry=%EA%B8%88%EC%9C%B5%EC%97%85"><span class="bname">금융업</span><span class="bnum">51건 · 알림 12</span></a><a class="brow" href="all.html?industry=%EC%A7%80%EC%A3%BC%ED%9A%8C%EC%82%AC"><span class="bname">지주회사</span><span class="bnum">34건 · 알림 11</span></a><a class="brow" href="all.html?industry=%EB%B9%84%EC%83%81%EC%9E%A5+%EC%A4%91%EC%86%8C%EA%B8%B0%EC%97%85"><span class="bname">비상장 중소기업</span><span class="bnum">76건 · 알림 10</span></a><a class="brow" href="all.html?industry=%EB%8F%84%EC%86%8C%EB%A7%A4%EC%97%85"><span class="bname">도소매업</span><span class="bnum">17건 · 알림 9</span></a><a class="brow" href="all.html?industry=%EB%B9%84%EC%98%81%EB%A6%AC%EB%B2%95%EC%9D%B8"><span class="bname">비영리법인</span><span class="bnum">30건 · 알림 8</span></a><a class="brow" href="all.html?industry=%EA%B3%B5%EA%B3%B5%EA%B8%B0%EA%B4%80"><span class="bname">공공기관</span><span class="bnum">15건 · 알림 6</span></a><a class="brow" href="all.html?industry=%EB%86%8D%EC%97%85"><span class="bname">농업</span><span class="bnum">6건 · 알림 6</span></a><a class="brow" href="all.html?industry=%EC%9E%AC%EB%8B%A8%C2%B7%EC%82%AC%EB%8B%A8%EB%B2%95%EC%9D%B8"><span class="bname">재단·사단법인</span><span class="bnum">24건 · 알림 5</span></a><a class="brow" href="all.html?industry=%EC%A0%84%EC%9E%90%EA%B8%88%EC%9C%B5%EC%97%85"><span class="bname">전자금융업</span><span class="bnum">5건 · 알림 5</span></a><a class="brow" href="all.html?industry=%EB%B6%80%EB%8F%99%EC%82%B0+%EA%B0%9C%EB%B0%9C%EC%97%85"><span class="bname">부동산 개발업</span><span class="bnum">67건 · 알림 4</span></a><a class="brow" href="all.html?industry=%EC%9D%80%ED%96%89%EC%97%85"><span class="bname">은행업</span><span class="bnum">29건 · 알림 4</span></a><a class="brow" href="all.html?industry=%EC%B9%B4%EB%93%9C%EC%97%85"><span class="bname">카드업</span><span class="bnum">24건 · 알림 4</span></a><a class="brow" href="all.html?industry=%ED%95%A9%EB%B3%91+%EA%B2%BD%ED%97%98+%EB%B2%95%EC%9D%B8"><span class="bname">합병 경험 법인</span><span class="bnum">12건 · 알림 3</span></a><a class="brow" href="all.html?industry=%ED%95%99%EA%B5%90%EB%B2%95%EC%9D%B8"><span class="bname">학교법인</span><span class="bnum">8건 · 알림 3</span></a><a class="brow" href="all.html?industry=%ED%98%91%EB%8F%99%EC%A1%B0%ED%95%A9"><span class="bname">협동조합</span><span class="bnum">7건 · 알림 3</span></a><a class="brow" href="all.html?industry=%EC%97%AC%EC%8B%A0%EC%A0%84%EB%AC%B8%EA%B8%88%EC%9C%B5%EC%97%85"><span class="bname">여신전문금융업</span><span class="bnum">5건 · 알림 3</span></a><a class="brow" href="all.html?industry=%EB%8B%A4%EA%B5%AD%EC%A0%81%EA%B8%B0%EC%97%85+%ED%95%9C%EA%B5%AD%EB%B2%95%EC%9D%B8"><span class="bname">다국적기업 한국법인</span><span class="bnum">4건 · 알림 3</span></a><a class="brow" href="all.html?industry=%EC%82%AC%ED%9A%8C%EA%B8%B0%EB%B0%98%EC%8B%9C%EC%84%A4+%EC%9A%B4%EC%98%81"><span class="bname">사회기반시설 운영</span><span class="bnum">4건 · 알림 3</span></a><a class="brow" href="all.html?industry=%EC%83%81%EC%8B%9C%EA%B7%BC%EB%A1%9C%EC%9E%90+50%EC%9D%B8+%EC%9D%B4%EC%83%81+%EB%B2%95%EC%9D%B8"><span class="bname">상시근로자 50인 이상 법인</span><span class="bnum">4건 · 알림 3</span></a><a class="brow" href="all.html?industry=%EC%99%B8%EA%B5%AD%EA%B3%84+%ED%88%AC%EC%9E%90%EB%B2%95%EC%9D%B8"><span class="bname">외국계 투자법인</span><span class="bnum">4건 · 알림 3</span></a><a class="brow" href="all.html?industry=%EC%88%98%EC%82%B0%EC%97%85"><span class="bname">수산업</span><span class="bnum">3건 · 알림 3</span></a><a class="brow" href="all.html?industry=%EC%8B%A0%EC%9A%A9%EC%B9%B4%EB%93%9C%EC%97%85"><span class="bname">신용카드업</span><span class="bnum">3건 · 알림 3</span></a><a class="brow" href="all.html?industry=%EC%9C%A0%ED%86%B5%EC%97%85"><span class="bname">유통업</span><span class="bnum">3건 · 알림 3</span></a><a class="brow" href="all.html?industry=%EB%B3%B4%ED%97%98%EC%97%85"><span class="bname">보험업</span><span class="bnum">27건 · 알림 2</span></a><a class="brow" href="all.html?industry=%EB%B6%80%EB%8F%99%EC%82%B0+%EC%9E%84%EB%8C%80%EC%97%85"><span class="bname">부동산 임대업</span><span class="bnum">25건 · 알림 2</span></a><a class="brow" href="all.html?industry=%EA%B3%B5%EC%9D%B5%EB%B2%95%EC%9D%B8"><span class="bname">공익법인</span><span class="bnum">11건 · 알림 2</span></a><a class="brow" href="all.html?industry=%EA%B0%80%EC%A1%B1%EA%B8%B0%EC%97%85"><span class="bname">가족기업</span><span class="bnum">6건 · 알림 2</span></a><a class="brow" href="all.html?industry=%EC%A0%95%EB%B3%B4%ED%86%B5%EC%8B%A0%EC%97%85"><span class="bname">정보통신업</span><span class="bnum">6건 · 알림 2</span></a><a class="brow" href="all.html?industry=%EA%B8%B0%EC%97%85%EC%A7%91%EB%8B%A8+%EC%86%8C%EC%86%8D+%EB%B2%95%EC%9D%B8"><span class="bname">기업집단 소속 법인</span><span class="bnum">4건 · 알림 2</span></a><a class="brow" href="all.html?industry=%EC%9D%98%EB%A3%8C%EB%B2%95%EC%9D%B8"><span class="bname">의료법인</span><span class="bnum">4건 · 알림 2</span></a><a class="brow" href="all.html?industry=%EB%8B%A4%EA%B5%AD%EC%A0%81%EA%B8%B0%EC%97%85"><span class="bname">다국적기업</span><span class="bnum">3건 · 알림 2</span></a><a class="brow" href="all.html?industry=%EC%82%AC%EB%AA%A8%ED%8E%80%EB%93%9C+%ED%88%AC%EC%9E%90%EA%B5%AC%EC%A1%B0"><span class="bname">사모펀드 투자구조</span><span class="bnum">3건 · 알림 2</span></a><a class="brow" href="all.html?industry=IT%C2%B7%EC%A0%84%EC%9E%90"><span class="bname">IT·전자</span><span class="bnum">2건 · 알림 2</span></a><a class="brow" href="all.html?industry=%EA%B5%AD%EC%A0%9C+%EB%B8%8C%EB%9E%9C%EB%93%9C+%EC%82%AC%EC%9A%A9+%EB%B2%95%EC%9D%B8"><span class="bname">국제 브랜드 사용 법인</span><span class="bnum">2건 · 알림 2</span></a><a class="brow" href="all.html?industry=%EA%B7%B8%EB%A3%B9+%EA%B3%84%EC%97%B4%EC%82%AC"><span class="bname">그룹 계열사</span><span class="bnum">2건 · 알림 2</span></a><a class="brow" href="all.html?industry=%EA%B8%B0%EC%88%A0+%EB%9D%BC%EC%9D%B4%EC%84%A0%EC%8A%A4+%EC%A7%80%EA%B8%89+%EB%B2%95%EC%9D%B8"><span class="bname">기술 라이선스 지급 법인</span><span class="bnum">2건 · 알림 2</span></a><a class="brow" href="all.html?industry=%EB%86%8D%EC%97%85%ED%9A%8C%EC%82%AC%EB%B2%95%EC%9D%B8"><span class="bname">농업회사법인</span><span class="bnum">2건 · 알림 2</span></a></div><div class="bmore">이 밖에 204종이 더 있습니다. 검색으로 찾아보세요.</div></section><section><h3>쟁점 (1062종)</h3><div class="blist"><a class="brow" href="all.html?issue=%EC%86%90%EA%B8%88%EC%82%B0%EC%9E%85"><span class="bname">손금산입</span><span class="bnum">25건 · 알림 15</span></a><a class="brow" href="all.html?issue=%EA%B5%AD%EB%82%B4%EC%9B%90%EC%B2%9C%EC%86%8C%EB%93%9D"><span class="bname">국내원천소득</span><span class="bnum">18건 · 알림 13</span></a><a class="brow" href="all.html?issue=%EA%B2%BD%EC%A0%95%EC%B2%AD%EA%B5%AC"><span class="bname">경정청구</span><span class="bnum">26건 · 알림 11</span></a><a class="brow" href="all.html?issue=%EA%B5%AD%EC%A0%9C%EC%A1%B0%EC%84%B8"><span class="bname">국제조세</span><span class="bnum">27건 · 알림 10</span></a><a class="brow" href="all.html?issue=%EC%9B%90%EC%B2%9C%EC%A7%95%EC%88%98"><span class="bname">원천징수</span><span class="bnum">16건 · 알림 10</span></a><a class="brow" href="all.html?issue=%EB%B6%80%EB%8B%B9%ED%96%89%EC%9C%84%EA%B3%84%EC%82%B0+%EB%B6%80%EC%9D%B8"><span class="bname">부당행위계산 부인</span><span class="bnum">34건 · 알림 8</span></a><a class="brow" href="all.html?issue=%ED%8A%B9%EC%88%98%EA%B4%80%EA%B3%84%EC%9D%B8"><span class="bname">특수관계인</span><span class="bnum">31건 · 알림 6</span></a><a class="brow" href="all.html?issue=%EC%82%AC%EC%97%85%EC%86%8C%EB%93%9D"><span class="bname">사업소득</span><span class="bnum">10건 · 알림 6</span></a><a class="brow" href="all.html?issue=%EB%B6%80%EA%B3%BC%EC%A0%9C%EC%B2%99%EA%B8%B0%EA%B0%84"><span class="bname">부과제척기간</span><span class="bnum">21건 · 알림 5</span></a><a class="brow" href="all.html?issue=%EB%8C%80%EC%86%90%EA%B8%88"><span class="bname">대손금</span><span class="bnum">18건 · 알림 5</span></a><a class="brow" href="all.html?issue=%EC%82%AC%EC%9A%A9%EB%A3%8C%EC%86%8C%EB%93%9D"><span class="bname">사용료소득</span><span class="bnum">9건 · 알림 5</span></a><a class="brow" href="all.html?issue=%EC%A6%9D%EC%97%AC%EC%9D%98%EC%A0%9C"><span class="bname">증여의제</span><span class="bnum">8건 · 알림 5</span></a><a class="brow" href="all.html?issue=%EC%86%90%EA%B8%88+%EA%B7%80%EC%86%8D%EC%8B%9C%EA%B8%B0"><span class="bname">손금 귀속시기</span><span class="bnum">18건 · 알림 4</span></a><a class="brow" href="all.html?issue=%ED%86%B5%EC%83%81%EC%A0%81+%EB%B9%84%EC%9A%A9"><span class="bname">통상적 비용</span><span class="bnum">14건 · 알림 4</span></a><a class="brow" href="all.html?issue=%EC%A1%B0%EC%84%B8%EB%B2%95%EB%A5%A0%EC%A3%BC%EC%9D%98"><span class="bname">조세법률주의</span><span class="bnum">10건 · 알림 4</span></a><a class="brow" href="all.html?issue=%EC%9D%98%EC%A0%9C%EB%B0%B0%EB%8B%B9"><span class="bname">의제배당</span><span class="bnum">8건 · 알림 4</span></a><a class="brow" href="all.html?issue=%EB%AC%B4%EC%88%98%EC%9D%B5%EC%9E%90%EC%82%B0"><span class="bname">무수익자산</span><span class="bnum">7건 · 알림 4</span></a><a class="brow" href="all.html?issue=%EC%9D%B5%EA%B8%88%EB%B6%88%EC%82%B0%EC%9E%85"><span class="bname">익금불산입</span><span class="bnum">7건 · 알림 4</span></a><a class="brow" href="all.html?issue=%EB%B6%88%EA%B3%B5%EC%A0%95%ED%95%A9%EB%B3%91"><span class="bname">불공정합병</span><span class="bnum">5건 · 알림 4</span></a><a class="brow" href="all.html?issue=%EC%86%8C%EB%93%9D%EA%B8%88%EC%95%A1%EB%B3%80%EB%8F%99%ED%86%B5%EC%A7%80"><span class="bname">소득금액변동통지</span><span class="bnum">29건 · 알림 3</span></a><a class="brow" href="all.html?issue=%EC%9D%B5%EA%B8%88%EC%82%B0%EC%9E%85"><span class="bname">익금산입</span><span class="bnum">28건 · 알림 3</span></a><a class="brow" href="all.html?issue=%EB%B6%80%EB%8B%B9%ED%96%89%EC%9C%84%EA%B3%84%EC%82%B0%EB%B6%80%EC%9D%B8"><span class="bname">부당행위계산부인</span><span class="bnum">15건 · 알림 3</span></a><a class="brow" href="all.html?issue=%EC%9D%B5%EA%B8%88+%EA%B7%80%EC%86%8D%EC%8B%9C%EA%B8%B0"><span class="bname">익금 귀속시기</span><span class="bnum">14건 · 알림 3</span></a><a class="brow" href="all.html?issue=%EB%B9%84%EC%98%81%EB%A6%AC%EB%B2%95%EC%9D%B8"><span class="bname">비영리법인</span><span class="bnum">13건 · 알림 3</span></a><a class="brow" href="all.html?issue=%EC%8B%9C%EA%B0%80"><span class="bname">시가</span><span class="bnum">13건 · 알림 3</span></a><a class="brow" href="all.html?issue=%EC%8B%A4%EC%A7%88%EA%B3%BC%EC%84%B8"><span class="bname">실질과세</span><span class="bnum">12건 · 알림 3</span></a><a class="brow" href="all.html?issue=%EC%82%AC%ED%9A%8C%EC%A7%88%EC%84%9C+%EC%9C%84%EB%B0%98"><span class="bname">사회질서 위반</span><span class="bnum">10건 · 알림 3</span></a><a class="brow" href="all.html?issue=%EC%A6%9D%EB%AA%85%EC%B1%85%EC%9E%84"><span class="bname">증명책임</span><span class="bnum">10건 · 알림 3</span></a><a class="brow" href="all.html?issue=%EC%A7%80%EA%B8%89%EC%9D%B4%EC%9E%90+%EC%86%90%EA%B8%88%EB%B6%88%EC%82%B0%EC%9E%85"><span class="bname">지급이자 손금불산입</span><span class="bnum">9건 · 알림 3</span></a><a class="brow" href="all.html?issue=%EA%B6%8C%EB%A6%AC%ED%99%95%EC%A0%95%EC%A3%BC%EC%9D%98"><span class="bname">권리확정주의</span><span class="bnum">8건 · 알림 3</span></a><a class="brow" href="all.html?issue=%EB%8B%B9%EC%97%B0%EB%AC%B4%ED%9A%A8"><span class="bname">당연무효</span><span class="bnum">8건 · 알림 3</span></a><a class="brow" href="all.html?issue=%ED%95%A9%EB%B3%91"><span class="bname">합병</span><span class="bnum">6건 · 알림 3</span></a><a class="brow" href="all.html?issue=%EC%88%98%EC%9E%85%EB%B0%B0%EB%8B%B9%EA%B8%88+%EC%9D%B5%EA%B8%88%EB%B6%88%EC%82%B0%EC%9E%85"><span class="bname">수입배당금 익금불산입</span><span class="bnum">5건 · 알림 3</span></a><a class="brow" href="all.html?issue=%EC%9E%A5%EC%95%A0%EC%9D%B8+%EA%B3%A0%EC%9A%A9%EB%B6%80%EB%8B%B4%EA%B8%88"><span class="bname">장애인 고용부담금</span><span class="bnum">5건 · 알림 3</span></a><a class="brow" href="all.html?issue=%EA%B3%B5%EA%B3%BC%EA%B8%88"><span class="bname">공과금</span><span class="bnum">4건 · 알림 3</span></a><a class="brow" href="all.html?issue=%EC%83%81%ED%91%9C%EA%B6%8C+%EC%82%AC%EC%9A%A9%EB%A3%8C"><span class="bname">상표권 사용료</span><span class="bnum">4건 · 알림 3</span></a><a class="brow" href="all.html?issue=%EC%A0%9C%EC%9E%AC%EC%A0%81+%EA%B3%B5%EA%B3%BC%EA%B8%88"><span class="bname">제재적 공과금</span><span class="bnum">4건 · 알림 3</span></a><a class="brow" href="all.html?issue=%EC%B7%A8%EB%93%9D%EA%B0%80%EC%95%A1"><span class="bname">취득가액</span><span class="bnum">4건 · 알림 3</span></a><a class="brow" href="all.html?issue=%EA%B0%90%EA%B0%80%EC%83%81%EA%B0%81%EC%9E%90%EC%82%B0"><span class="bname">감가상각자산</span><span class="bnum">3건 · 알림 3</span></a><a class="brow" href="all.html?issue=%EA%B5%AD%EA%B3%A0%EB%B3%B4%EC%A1%B0%EA%B8%88"><span class="bname">국고보조금</span><span class="bnum">3건 · 알림 3</span></a></div><div class="bmore">이 밖에 1022종이 더 있습니다. 검색으로 찾아보세요.</div></section><section><h3>결과 (4종)</h3><div class="blist"><a class="brow" href="all.html?outcome=%EB%82%A9%EC%84%B8%EC%9E%90%EC%8A%B9"><span class="bname">납세자승</span><span class="bnum">112건 · 알림 75</span></a><a class="brow" href="all.html?outcome=%EC%9D%BC%EB%B6%80%EC%8A%B9"><span class="bname">일부승</span><span class="bnum">81건 · 알림 22</span></a><a class="brow" href="all.html?outcome=%EA%B3%BC%EC%84%B8%EA%B4%80%EC%B2%AD%EC%8A%B9"><span class="bname">과세관청승</span><span class="bnum">371건</span></a><a class="brow" href="all.html?outcome=%EA%B8%B0%ED%83%80"><span class="bname">기타</span><span class="bnum">10건</span></a></div></section>
+<div id="tr-manual" style="display:none">
+  <div class="manual-head">
+    <b>길게 눌러 → 복사</b>
+    <button type="button" id="tr-manual-all">전체선택</button>
+    <button type="button" id="tr-manual-close">닫기</button>
+  </div>
+  <textarea readonly rows="12"></textarea>
+  <div class="manual-tip">이 화면은 HTTPS가 아니라 브라우저가 자동 복사를 막습니다.
+  한 번만 설정하면 버튼 한 번으로 복사됩니다 — 상태 화면의 안내를 참고하세요.</div>
+</div>
+</main>
+<footer>자동 분석 결과입니다. 실제 경정청구 전 세무대리인 검토가 필요합니다.</footer>
+<script>
+function trIsIOS(){
+  return /iPad|iPhone|iPod/.test(navigator.userAgent)
+      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+function trCopy(text){
+  if (navigator.clipboard && window.isSecureContext) {
+    return navigator.clipboard.writeText(text);
+  }
+  // iOS에서는 execCommand가 성공을 반환해도 클립보드에 들어가지 않습니다.
+  // 거짓 성공을 표시하지 않도록 시도조차 하지 않습니다.
+  if (trIsIOS()) {
+    return Promise.reject(new Error('ios-insecure'));
+  }
+  return new Promise(function(resolve, reject){
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '0';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    try {
+      ta.select();
+      var ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      ok ? resolve() : reject(new Error('execCommand failed'));
+    } catch (err) {
+      document.body.removeChild(ta);
+      reject(err);
+    }
+  });
+}
+
+function trFlash(btn, msg, bad){
+  var original = btn.dataset.label;
+  btn.textContent = msg;
+  btn.classList.add(bad ? 'fail' : 'done');
+  setTimeout(function(){
+    btn.textContent = original;
+    btn.classList.remove('done', 'fail');
+  }, 1800);
+}
+
+// 자동 복사가 불가능한 경우: 내용을 펼쳐 전체 선택해 둡니다.
+// 사용자는 길게 눌러 '복사'만 누르면 됩니다.
+function trManual(text){
+  var box = document.getElementById('tr-manual');
+  if (!box) return;
+  var ta = box.querySelector('textarea');
+  ta.value = text;
+  box.style.display = 'block';
+  box.scrollIntoView({behavior:'smooth', block:'center'});
+  setTimeout(function(){
+    ta.focus();
+    ta.setSelectionRange(0, ta.value.length);
+  }, 250);
+}
+
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('.copy');
+  if (btn) {
+    e.preventDefault();
+    e.stopPropagation();
+    var el = document.getElementById(btn.dataset.target);
+    if (!el) return;
+    var text = JSON.parse(el.textContent);
+    trCopy(text).then(function(){
+      trFlash(btn, '\u2705 복사됨');
+    }).catch(function(){
+      trFlash(btn, '\u2193 아래에서 복사', true);
+      trManual(text);
+    });
+    return;
+  }
+  if (e.target.id === 'tr-manual-close') {
+    document.getElementById('tr-manual').style.display = 'none';
+  }
+  if (e.target.id === 'tr-manual-all') {
+    var ta2 = document.querySelector('#tr-manual textarea');
+    ta2.focus();
+    ta2.setSelectionRange(0, ta2.value.length);
+  }
+});
+</script>
+</body></html>
